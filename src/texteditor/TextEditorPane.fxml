@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane
+    id="BorderPane"
+    prefHeight="400.0"
+    prefWidth="600.0"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="texteditor.MainController"
+>
+    <top>
+        <MenuBar fx:id="menuBar">
+            <Menu text="File" fx:id="fileMenu">
+                <MenuItem text="New" fx:id="newFileMenuItem" onAction="#newFileCreate"/>
+                <MenuItem text="Open" fx:id="openFileMenuItem" onAction="#openFile"/>
+                <MenuItem text="Save" fx:id="saveFileMenuItem" onAction="#saveCurrentFile"/>
+                <MenuItem text="Save as" fx:id="saveAsFileMenuItem" onAction="#saveNewFile"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="Close" fx:id="closeFileMenuItem" onAction="#closeOpendFile"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="Exit" fx:id="exitMenuItem" onAction="#exitProgram"/>
+            </Menu>
+
+            <Menu text="Edit" fx:id="editMenu">
+                <MenuItem text="Redo" disable="true" fx:id="redoMenuItem" onAction="#redo"/>
+                <MenuItem text="Undo" disable="true" fx:id="undoMenuItem" onAction="#undo"/>
+            </Menu>
+
+            <Menu text="About" fx:id="aboutMenu">
+                <MenuItem text="About" fx:id="aboutMenuItem" onAction="#showAboutProgram"/>
+            </Menu>
+        </MenuBar>
+    </top>
+    
+    <center>
+        <TextArea wrapText="true" fx:id="textArea" onTextChange="#textChange" />
+    </center>
+</BorderPane>
