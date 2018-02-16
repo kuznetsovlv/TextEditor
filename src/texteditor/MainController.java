@@ -41,6 +41,10 @@ public class MainController implements Initializable {
     @FXML
     private TextArea textArea;
     
+    private History history;
+    
+    
+    
     @FXML
     public void newFileCreate(ActionEvent event) {
         System.out.println("Creating new file");
@@ -73,12 +77,12 @@ public class MainController implements Initializable {
     
     @FXML
     public void redo(ActionEvent event) {
-        
+        shiftHistory(1);
     }
     
     @FXML
     public void undo(ActionEvent event) {
-        
+        shiftHistory(-1);
     }
     
     @FXML
@@ -88,11 +92,31 @@ public class MainController implements Initializable {
     
     @FXML
     public void textChange(Event event) {
-        System.out.println(textArea.getText());
+        new HistorySaver(this).start();
+    }
+    
+    public void addHistory() {
+        if (!textArea.getText().equals(history.getCurrent())) {
+            history.add(textArea.getText());
+            enableHistoryItems();
+        }
+    }
+    
+     public void undoHistory() {
+        history.undo();
+        textArea.setText(history.getCurrent());
+        enableHistoryItems();
+    }
+    
+    public void redoHistory() {
+        history.redo();
+        textArea.setText(history.getCurrent());
+        enableHistoryItems();
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        history = new History();
         disableItems(saveAsFileMenuItem, saveFileMenuItem, closeFileMenuItem);
     }
     
@@ -100,5 +124,15 @@ public class MainController implements Initializable {
         for(MenuItem item: items) {
             item.setDisable(true);
         }
+    }
+    
+    private void enableHistoryItems() {
+        int position = history.getCurrentIndex();
+        undoMenuItem.setDisable(position <= 0);
+        redoMenuItem.setDisable(position >= history.size() - 1);
+    }
+    
+    private void shiftHistory(int direction) {
+        new HistoryMover(this, direction).start();
     }
 }
