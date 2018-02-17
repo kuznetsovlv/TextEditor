@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 
 public class HistoryManager implements Runnable {
     
+    static private final long PAUSE = 100;
+    
     private final MainController controller;
     private final Thread thread;
     private int direction;
@@ -36,6 +38,15 @@ public class HistoryManager implements Runnable {
                 controller.redoText();
             } else if (direction < 0) {
                 controller.undoText();
+            } else {
+                try {
+                    Thread.sleep(PAUSE);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(HistoryManager.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    controller.addHistory();
+                }
+                
             }
             
             controller.enableHistoryItems();

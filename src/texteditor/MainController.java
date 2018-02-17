@@ -43,6 +43,8 @@ public class MainController implements Initializable {
     @FXML
     private TextArea textArea;
     
+    private History history;
+    
     private boolean free = false;
        
     @FXML
@@ -95,22 +97,25 @@ public class MainController implements Initializable {
         updateHistory(0);
     }
     
-    public void undoText() {
-        if (textArea.undoableProperty().get()) {
-            textArea.undo();
+    public void addHistory() {
+        if (!textArea.getText().equals(history.getCurrent())) {
+            history.add(textArea.getText());
         }
+    }
+    
+    public void undoText() {
+        history.undo();
+        setText();
     }
     
     public void redoText() {
-        if (textArea.redoableProperty().get()) {
-            textArea.redo();
-        }
+        history.redo();
+        setText();
     }
     
     public void enableHistoryItems() {
-        System.out.println("Enabling:" + textArea.getText() + " " + textArea.undoableProperty().get() + " " + textArea.redoableProperty().get());
-        undoMenuItem.setDisable(!textArea.undoableProperty().get());
-        redoMenuItem.setDisable(!textArea.redoableProperty().get());
+        undoMenuItem.setDisable(history.getCurrentIndex() <= 0);
+        redoMenuItem.setDisable(history.getCurrentIndex() >= history.size() - 1);
     }
     
     
@@ -142,6 +147,8 @@ public class MainController implements Initializable {
             }
         });
         
+        history = new History();
+        
         disableItems(saveAsFileMenuItem, saveFileMenuItem, closeFileMenuItem);
         free = true;
     }
@@ -154,5 +161,17 @@ public class MainController implements Initializable {
     
     private void updateHistory(int direction) {
         new HistoryManager(this, direction).start();
+    }
+    
+    private int getNewTabPosition() {
+        int position = textArea.getAnchor() + history.getCurrent().length() - textArea.getText().length();
+         
+        return position > 0 ? position : 0;
+    }
+    
+    private void setText() {
+        int position = getNewTabPosition();
+        textArea.setText(history.getCurrent());
+        textArea.selectRange(position, position);
     }
 }
