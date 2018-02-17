@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.IndexRange;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
@@ -99,7 +100,7 @@ public class MainController implements Initializable {
     
     public void addHistory() {
         if (!textArea.getText().equals(history.getCurrent())) {
-            history.add(textArea.getText());
+            history.add(textArea.getText(), textArea.getSelection());
         }
     }
     
@@ -163,15 +164,9 @@ public class MainController implements Initializable {
         new HistoryManager(this, direction).start();
     }
     
-    private int getNewTabPosition() {
-        int position = textArea.getAnchor() + history.getCurrent().length() - textArea.getText().length();
-         
-        return position > 0 ? position : 0;
-    }
-    
     private void setText() {
-        int position = getNewTabPosition();
+        IndexRange selection = history.getCurrentSelection();
         textArea.setText(history.getCurrent());
-        textArea.selectRange(position, position);
+        textArea.selectRange(selection.getStart(), selection.getEnd());
     }
 }

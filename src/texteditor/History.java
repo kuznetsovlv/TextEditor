@@ -2,14 +2,34 @@ package texteditor;
 
 import java.util.LinkedList;
 import java.util.List;
+import javafx.scene.control.IndexRange;
 
 public class History {
-    private List<String> historyList;
+    
+    private class Item {
+        String text;
+        IndexRange selection;
+
+        public Item(String text, IndexRange selection) {
+            this.text = text;
+            this.selection = selection;
+        }
+        
+        public String getText() {
+            return text;
+        }
+
+        public IndexRange getSelection() {
+            return selection;
+        }
+    }
+    
+    private List<Item> historyList;
     private int index;
 
     public History(String initialHistory) {
         historyList = new LinkedList<>();
-        historyList.add(initialHistory);
+        historyList.add(new Item(initialHistory, new IndexRange(0, 0)));
         index = 0;
     }
 
@@ -18,7 +38,11 @@ public class History {
     }
     
     public String getCurrent() {
-        return historyList.get(index);
+        return historyList.get(index).getText();
+    }
+    
+    public IndexRange getCurrentSelection() {
+        return historyList.get(index).getSelection();
     }
     
     public int getCurrentIndex() {
@@ -30,16 +54,16 @@ public class History {
             return null;
         }
         
-        return historyList.get(position);
+        return historyList.get(position).getText();
     }
     
     public int size() {
         return historyList.size();
     }
     
-    public void add(String str) {
+    public void add(String str, IndexRange selection) {
         cut();
-        historyList.add(str);
+        historyList.add(new Item(str, selection));
         ++index;
     }
     
@@ -69,7 +93,7 @@ public class History {
     
     private void cut() {
         if (index < historyList.size() - 1) {
-            List<String> oldHistoryList = historyList;
+            List<Item> oldHistoryList = historyList;
             historyList = new LinkedList<>();
             
             for (int i = 0; i <= index; ++i) {
