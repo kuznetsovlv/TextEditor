@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 public class MainController implements Initializable {
     
@@ -41,10 +43,8 @@ public class MainController implements Initializable {
     @FXML
     private TextArea textArea;
     
-    private History history;
-    
-    
-    
+    private boolean free = false;
+       
     @FXML
     public void newFileCreate(ActionEvent event) {
         System.out.println("Creating new file");
@@ -77,12 +77,12 @@ public class MainController implements Initializable {
     
     @FXML
     public void redo(ActionEvent event) {
-        shiftHistory(1);
+        updateHistory(1);
     }
     
     @FXML
     public void undo(ActionEvent event) {
-        shiftHistory(-1);
+        updateHistory(-1);
     }
     
     @FXML
@@ -92,32 +92,58 @@ public class MainController implements Initializable {
     
     @FXML
     public void textChange(Event event) {
-        new HistorySaver(this).start();
+        updateHistory(0);
     }
     
-    public void addHistory() {
-        if (!textArea.getText().equals(history.getCurrent())) {
-            history.add(textArea.getText());
-            enableHistoryItems();
+    public void undoText() {
+        if (textArea.undoableProperty().get()) {
+            textArea.undo();
         }
     }
     
-     public void undoHistory() {
-        history.undo();
-        textArea.setText(history.getCurrent());
-        enableHistoryItems();
+    public void redoText() {
+        if (textArea.redoableProperty().get()) {
+            textArea.redo();
+        }
     }
     
-    public void redoHistory() {
-        history.redo();
-        textArea.setText(history.getCurrent());
-        enableHistoryItems();
+    public void enableHistoryItems() {
+        System.out.println("Enabling:" + textArea.getText() + " " + textArea.undoableProperty().get() + " " + textArea.redoableProperty().get());
+        undoMenuItem.setDisable(!textArea.undoableProperty().get());
+        redoMenuItem.setDisable(!textArea.redoableProperty().get());
+    }
+    
+    
+    public boolean isFree() {
+        return free;
+    }
+    
+    public void setOccupied() {
+        free = false;
+    }
+    
+    public void setFree() {
+        free = true;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        history = new History();
+        textArea.setOnKeyPressed((KeyEvent event) -> {
+            if (event.isControlDown()) {
+                KeyCode key = event.getCode();
+                System.out.println(event.getCharacter());
+                if(key.equals(KeyCode.Z)) {
+                    event.consume();
+                    updateHistory(-1);
+                } else if(key.equals(KeyCode.Y)) {
+                    event.consume();
+                    updateHistory(1);
+                }
+            }
+        });
+        
         disableItems(saveAsFileMenuItem, saveFileMenuItem, closeFileMenuItem);
+        free = true;
     }
     
     private void disableItems (MenuItem ...items) {
@@ -126,13 +152,7 @@ public class MainController implements Initializable {
         }
     }
     
-    private void enableHistoryItems() {
-        int position = history.getCurrentIndex();
-        undoMenuItem.setDisable(position <= 0);
-        redoMenuItem.setDisable(position >= history.size() - 1);
-    }
-    
-    private void shiftHistory(int direction) {
-        new HistoryMover(this, direction).start();
+    private void updateHistory(int direction) {
+        new HistoryManager(this, direction).start();
     }
 }

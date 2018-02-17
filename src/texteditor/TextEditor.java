@@ -7,9 +7,11 @@ package texteditor;
 
 import java.io.IOException;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 /**
@@ -22,8 +24,7 @@ public class TextEditor extends Application {
     public void start(Stage stage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("TextEditorPane.fxml"));
         Scene scene = new Scene(root);
-        
-        
+               
         stage.setTitle("Text Editor");
         stage.setScene(scene);
         stage.show();
@@ -34,6 +35,16 @@ public class TextEditor extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private static class EventHandlerImpl implements EventHandler<KeyEvent> {
+
+        public EventHandlerImpl() {
+        }
+
+        @Override
+        public void handle(KeyEvent event) {
+        }
     }
     
 }
