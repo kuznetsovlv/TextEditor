@@ -45,6 +45,7 @@ public class MainController implements Initializable {
     private TextArea textArea;
     
     private History history;
+    private HistoryManager historyManager;
     
     private boolean free = false;
        
@@ -80,12 +81,12 @@ public class MainController implements Initializable {
     
     @FXML
     public void redo(ActionEvent event) {
-        updateHistory(1);
+        historyManager.redo();
     }
     
     @FXML
     public void undo(ActionEvent event) {
-        updateHistory(-1);
+        historyManager.undo();
     }
     
     @FXML
@@ -95,12 +96,13 @@ public class MainController implements Initializable {
     
     @FXML
     public void textChange(Event event) {
-        updateHistory(0);
+        historyManager.add();
     }
     
     public void addHistory() {
         if (!textArea.getText().equals(history.getCurrent())) {
             history.add(textArea.getText(), textArea.getSelection());
+            enableHistoryItems();
         }
     }
     
@@ -137,18 +139,19 @@ public class MainController implements Initializable {
         textArea.setOnKeyPressed((KeyEvent event) -> {
             if (event.isControlDown()) {
                 KeyCode key = event.getCode();
-                System.out.println(event.getCharacter());
                 if(key.equals(KeyCode.Z)) {
                     event.consume();
-                    updateHistory(-1);
+                    historyManager.undo();
                 } else if(key.equals(KeyCode.Y)) {
                     event.consume();
-                    updateHistory(1);
+                    historyManager.redo();
                 }
             }
         });
         
         history = new History();
+        historyManager = new HistoryManager(this);
+        historyManager.start();
         
         disableItems(saveAsFileMenuItem, saveFileMenuItem, closeFileMenuItem);
         free = true;
@@ -160,13 +163,10 @@ public class MainController implements Initializable {
         }
     }
     
-    private void updateHistory(int direction) {
-        new HistoryManager(this, direction).start();
-    }
-    
     private void setText() {
         IndexRange selection = history.getCurrentSelection();
         textArea.setText(history.getCurrent());
         textArea.selectRange(selection.getStart(), selection.getEnd());
+        enableHistoryItems();
     }
 }
