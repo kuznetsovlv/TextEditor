@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane
+    id="BorderPane"
+    prefHeight="200.0" prefWidth="270.0"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="texteditor.AboutPaneController"
+>
+    <center>
+        <FlowPane prefHeight="150.0" prefWidth="270.0">
+            <padding>
+                <javafx.geometry.Insets top="20" right="10" bottom="0" left="10"/>
+            </padding>
+            
+            <VBox>
+                <Text wrappingWidth="250" textAlignment="center" lineSpacing="2">
+                    <font>
+                        <Font name="Arial" size="16"/>
+                    </font>
+                    <VBox.margin>
+                        <Insets>
+                            <bottom>7</bottom>
+                        </Insets>
+                    </VBox.margin>
+
+                    Simple text editor.
+                </Text>
+                <Text wrappingWidth="250" textAlignment="center" lineSpacing="2">
+                    <font>
+                        <Font name="Arial" size="14"/>
+                    </font>
+                    <VBox.margin>
+                        <Insets>
+                            <bottom>7</bottom>
+                        </Insets>
+                    </VBox.margin>
+                    Project for study JavaFX technology.
+                </Text>
+                <Hyperlink fx:id="hyperlink" wrapText="true" textAlignment="center" prefWidth="250.0" style="-fx-border-width: 0">
+                    <font>
+                        <Font name="Verdana" size="11"/>
+                    </font>
+                    
+                    https://github.com/kuznetsovlv/TextEditor
+                </Hyperlink>
+            </VBox>
+        </FlowPane>
+    </center>
+    
+    <bottom>
+        <FlowPane prefHeight="50.0" prefWidth="270.0">
+            <padding>
+                <javafx.geometry.Insets top="0" right="35" bottom="20" left="35"/>
+            </padding>
+            <Button fx:id="closeButton" onAction="#closeButtonClick" prefHeight="20.0" prefWidth="200">Ok</Button>
+        </FlowPane>
+    </bottom>
+</BorderPane>

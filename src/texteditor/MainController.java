@@ -1,16 +1,23 @@
 package texteditor;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MainController implements Initializable {
     
@@ -90,8 +97,17 @@ public class MainController implements Initializable {
     }
     
     @FXML
-    public void showAboutProgram(ActionEvent event) {
-        System.out.println("About");
+    public void showAboutProgram(ActionEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("AboutPane.fxml"));
+        
+        Scene scene = new Scene(root);
+        
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("About");
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.show();
     }
     
     @FXML
