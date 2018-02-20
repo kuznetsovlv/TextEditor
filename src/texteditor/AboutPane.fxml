@@ -35,7 +35,7 @@
                 </Text>
                 <Text wrappingWidth="250" textAlignment="center" lineSpacing="2">
                     <font>
-                        <Font name="Arial" size="14"/>
+                        <Font name="Arial" size="10"/>
                     </font>
                     <VBox.margin>
                         <Insets>
