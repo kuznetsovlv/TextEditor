@@ -116,7 +116,12 @@ public class MainController implements Initializable {
         setText();
     }
     
-    public void enableHistoryItems() {
+    public void resetHistory(String initial) {
+        history.reset(initial);
+        enableHistoryItems();
+    }
+    
+    private void enableHistoryItems() {
         undoMenuItem.setDisable(history.getCurrentIndex() <= 0);
         redoMenuItem.setDisable(history.getCurrentIndex() >= history.size() - 1);
     }
@@ -153,7 +158,7 @@ public class MainController implements Initializable {
         historyManager = new HistoryManager(this);
         historyManager.start();
         
-        disableItems(saveAsFileMenuItem, saveFileMenuItem, closeFileMenuItem);
+        disableItems(closeFileMenuItem);
         free = true;
     }
     

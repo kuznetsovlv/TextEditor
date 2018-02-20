@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
 
-enum Action { NONE, UNDO, REDO, ADD };
+enum Action { NONE, UNDO, REDO, ADD, RESET };
 
 public class HistoryManager implements Runnable {
     
@@ -17,6 +17,7 @@ public class HistoryManager implements Runnable {
     private Action action;
     private boolean inWork;
     private Timer timer;
+    private String resetHistoriValue;
     
 
     public HistoryManager(MainController controller) {
@@ -53,13 +54,24 @@ public class HistoryManager implements Runnable {
         action = Action.ADD;
     }
     
+    public void resetHistory(String resetHistoriValue) {
+        this.resetHistoriValue = resetHistoriValue;
+        action = Action.RESET;
+    }
+    
     private void addHistory() {
         if (timer.isRunning()) {
             timer.restart();
         } else {
             timer.start();
         }
-        
+    }
+    
+    
+    private void stopTimer() {
+        if(timer.isRunning()) {
+            timer.stop();
+        }
     }
 
     @Override
@@ -68,17 +80,22 @@ public class HistoryManager implements Runnable {
             synchronized(controller) {
                 switch (action) {
                     case REDO:
+                        stopTimer();
                         controller.redoText();
                         break;
                     case UNDO:
+                        stopTimer();
                         controller.undoText();
                         break;
+                    case RESET:
+                        stopTimer();
+                        controller.resetHistory(resetHistoriValue);
                     case ADD:
                         addHistory();
                         break;
                 }
-                
-                action = Action.NONE;
+
+                action = Action.NONE;                
             }
         }     
     }

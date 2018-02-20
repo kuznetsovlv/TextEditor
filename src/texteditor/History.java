@@ -28,9 +28,7 @@ public class History {
     private int index;
 
     public History(String initialHistory) {
-        historyList = new LinkedList<>();
-        historyList.add(new Item(initialHistory, new IndexRange(0, 0)));
-        index = 0;
+        reset(initialHistory);
     }
 
     public History() {
@@ -81,6 +79,16 @@ public class History {
     
     public void redo() {
         redo(1);
+    }
+    
+   public void reset() {
+       reset("");
+   }
+    
+    public void reset(String initialHistory) {
+        historyList = new LinkedList<>();
+        historyList.add(new Item(initialHistory, new IndexRange(0, 0)));
+        index = 0;
     }
     
     private void setIndex (int index) {
