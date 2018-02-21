@@ -21,8 +21,6 @@
                 <MenuItem text="Save" fx:id="saveFileMenuItem" onAction="#saveCurrentFile"/>
                 <MenuItem text="Save as" fx:id="saveAsFileMenuItem" onAction="#saveNewFile"/>
                 <SeparatorMenuItem/>
-                <MenuItem text="Close" fx:id="closeFileMenuItem" onAction="#closeOpendFile"/>
-                <SeparatorMenuItem/>
                 <MenuItem text="Exit" fx:id="exitMenuItem" onAction="#exitProgram"/>
             </Menu>
 

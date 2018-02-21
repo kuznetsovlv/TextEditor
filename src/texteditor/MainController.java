@@ -34,9 +34,6 @@ public class MainController implements Initializable {
     private MenuItem saveAsFileMenuItem;
     
     @FXML
-    private MenuItem closeFileMenuItem;
-    
-    @FXML
     private MenuItem exitMenuItem;
     
     @FXML
@@ -55,6 +52,7 @@ public class MainController implements Initializable {
     private HistoryManager historyManager;
     
     private boolean free = false;
+    private boolean dataUnsaved;
        
     @FXML
     public void newFileCreate(ActionEvent event) {
@@ -74,11 +72,6 @@ public class MainController implements Initializable {
     @FXML
     public void saveNewFile(ActionEvent event) {
         System.out.println("Saving new file");
-    }
-    
-    @FXML
-    public void closeOpendFile(ActionEvent event) {
-        System.out.println("Closing file");
     }
     
     @FXML
@@ -112,6 +105,7 @@ public class MainController implements Initializable {
     
     @FXML
     public void textChange(Event event) {
+        dataUnsaved = true;
         historyManager.add();
     }
     
@@ -135,6 +129,7 @@ public class MainController implements Initializable {
     public void resetHistory(String initial) {
         history.reset(initial);
         enableHistoryItems();
+        dataUnsaved = false;
     }
     
     private void enableHistoryItems() {
@@ -157,6 +152,8 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        dataUnsaved = false;
+        
         textArea.setOnKeyPressed((KeyEvent event) -> {
             if (event.isControlDown()) {
                 KeyCode key = event.getCode();
@@ -174,14 +171,7 @@ public class MainController implements Initializable {
         historyManager = new HistoryManager(this);
         historyManager.start();
         
-        disableItems(closeFileMenuItem);
         free = true;
-    }
-    
-    private void disableItems (MenuItem ...items) {
-        for(MenuItem item: items) {
-            item.setDisable(true);
-        }
     }
     
     private void setText() {
