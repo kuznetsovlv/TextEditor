@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane
-    id="BorderPane"
+    id="borderPane"
     prefHeight="400.0"
     prefWidth="600.0"
     xmlns:fx="http://javafx.com/fxml/1"

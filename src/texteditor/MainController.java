@@ -3,6 +3,8 @@ package texteditor;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -17,7 +19,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class MainController implements Initializable {
     
@@ -76,7 +77,7 @@ public class MainController implements Initializable {
     
     @FXML
     public void exitProgram(ActionEvent event) {
-        System.exit(0);
+        exit();
     }
     
     @FXML
@@ -179,5 +180,31 @@ public class MainController implements Initializable {
         textArea.setText(history.getCurrent());
         textArea.selectRange(selection.getStart(), selection.getEnd());
         enableHistoryItems();
+    }
+    
+    public void exit() {
+        if (dataUnsaved) {
+            askForSaveFile(new DialogReaction() {
+                @Override
+                public void yesReaction(ActionEvent event) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void noReaction(ActionEvent event) {
+                    System.exit(0);
+                }
+            }, "You have unsaved data. Do you want save it?");
+        } else {
+            System.exit(0);
+        }
+    }
+    
+    private void askForSaveFile(DialogReaction reaction,  String question) {
+        try {
+            new DialogCreator(reaction, question);
+        } catch (IOException ex) {
+            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

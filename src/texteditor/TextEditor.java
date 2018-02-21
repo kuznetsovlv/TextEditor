@@ -13,6 +13,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -22,11 +23,17 @@ public class TextEditor extends Application {
     
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("TextEditorPane.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("TextEditorPane.fxml"));
+        Parent root = loader.load();
         Scene scene = new Scene(root);
-               
+        
         stage.setTitle("Text Editor");
         stage.setScene(scene);
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            MainController controller = (MainController) loader.getController();
+            event.consume();
+            controller.exit();
+        });
         stage.show();
     }
 

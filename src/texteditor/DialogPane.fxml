@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane
+    id="dialogPane"
+    prefHeight="200.0" prefWidth="300.0"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="texteditor.DialogPaneController"
+>
+    <center>
+        <FlowPane prefHeight="150.0" prefWidth="300.0">
+            <padding>
+                <javafx.geometry.Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+            
+            <Text fx:id="text" wrappingWidth="280" textAlignment="center" lineSpacing="2">
+                    <font>
+                        <Font name="Arial" size="16"/>
+                    </font>
+                </Text>
+        </FlowPane>
+    </center>
+    
+     <bottom>
+        <FlowPane prefHeight="50.0" prefWidth="300.0">
+            <padding>
+                <javafx.geometry.Insets top="0" right="15" bottom="20" left="15"/>
+            </padding>
+            <Button fx:id="yesButton" prefHeight="20.0" prefWidth="80" onAction="#yesButtonClick">
+                <HBox.margin>
+                    <Insets>
+                        <right>15</right>
+                    </Insets>
+                </HBox.margin>
+                Yes
+            </Button>
+            
+            <Button fx:id="noButton" prefHeight="20.0" prefWidth="80" onAction="#noButtonClick">
+                <HBox.margin>
+                    <Insets>
+                        <right>15</right>
+                    </Insets>
+                </HBox.margin>
+                No
+            </Button>
+            
+            <Button fx:id="cancelButton" prefHeight="20.0" prefWidth="80" onAction="#cancelButtonClick">
+                Cancel
+            </Button>
+        </FlowPane>
+    </bottom>
+    
+</BorderPane>
