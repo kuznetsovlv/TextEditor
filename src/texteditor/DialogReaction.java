@@ -6,4 +6,5 @@ public interface DialogReaction {
     
     public void yesReaction(ActionEvent event);
     public void noReaction(ActionEvent event);
+    public default void cancelReaction(ActionEvent event) {}
 }

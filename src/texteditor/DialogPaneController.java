@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -26,18 +27,36 @@ public class DialogPaneController implements Initializable {
     
     @FXML
     public void yesButtonClick(ActionEvent event) {
-        reaction.yesReaction(event);
+        if (reaction != null) {
+            reaction.yesReaction(event);
+        }
+        
+        closeDialog(event);
     }
     
     @FXML
     public void noButtonClick(ActionEvent event) {
-        reaction.noReaction(event);
+        if (reaction != null) {
+            reaction.noReaction(event);
+        }
+        
+        closeDialog(event);
     }
     
     @FXML
     public void cancelButtonClick(ActionEvent event) {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
+        if (reaction != null) {
+            reaction.cancelReaction(event);
+        }
+        
+        closeDialog(event);
+    }
+    
+    private void closeDialog(ActionEvent event) {
+        Stage stage = (Stage) ((Node) event.getTarget()).getScene().getWindow();
+        if (stage.isShowing()) {
+             stage.close();
+        }
     }
 
     @Override
