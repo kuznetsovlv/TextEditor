@@ -29,32 +29,40 @@
     </center>
     
      <bottom>
-        <FlowPane prefHeight="50.0" prefWidth="300.0">
+        <GridPane
+            prefHeight="50.0" prefWidth="300.0"
+            alignment="CENTER" hgap="10" vgap="10"
+        >
             <padding>
                 <javafx.geometry.Insets top="0" right="15" bottom="20" left="15"/>
             </padding>
-            <Button fx:id="yesButton" prefHeight="20.0" prefWidth="80" onAction="#yesButtonClick">
-                <HBox.margin>
-                    <Insets>
-                        <right>15</right>
-                    </Insets>
-                </HBox.margin>
+            <Button
+                fx:id="yesButton"
+                onAction="#yesButtonClick"
+                prefWidth="80.0"
+                GridPane.columnIndex="0" GridPane.rowIndex="0"
+            >
                 Yes
             </Button>
             
-            <Button fx:id="noButton" prefHeight="20.0" prefWidth="80" onAction="#noButtonClick">
-                <HBox.margin>
-                    <Insets>
-                        <right>15</right>
-                    </Insets>
-                </HBox.margin>
+            <Button
+                fx:id="noButton" 
+                onAction="#noButtonClick"
+                prefWidth="80.0"
+                GridPane.columnIndex="1" GridPane.rowIndex="0"
+            >
                 No
             </Button>
             
-            <Button fx:id="cancelButton" prefHeight="20.0" prefWidth="80" onAction="#cancelButtonClick">
+            <Button
+                fx:id="cancelButton"
+                onAction="#cancelButtonClick"
+                prefWidth="80.0"
+                GridPane.columnIndex="2" GridPane.rowIndex="0"
+            >
                 Cancel
             </Button>
-        </FlowPane>
+        </GridPane>
     </bottom>
     
 </BorderPane>

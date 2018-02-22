@@ -194,15 +194,15 @@ public class MainController implements Initializable {
                 public void noReaction(ActionEvent event) {
                     System.exit(0);
                 }
-            }, "You have unsaved data. Do you want save it?");
+            }, "You have unsaved data. Do you want save it?", "Unsaved changes");
         } else {
             System.exit(0);
         }
     }
     
-    private void askForSaveFile(DialogReaction reaction,  String question) {
+    private void askForSaveFile(DialogReaction reaction,  String question, String title) {
         try {
-            new DialogCreator(reaction, question);
+            new DialogCreator(reaction, question, title);
         } catch (IOException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
