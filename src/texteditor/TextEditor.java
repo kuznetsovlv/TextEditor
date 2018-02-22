@@ -5,6 +5,7 @@
  */
 package texteditor;
 
+import java.io.File;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -12,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -24,17 +26,29 @@ public class TextEditor extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("TextEditorPane.fxml"));
+        
+        
+        
         Parent root = loader.load();
         Scene scene = new Scene(root);
         
         stage.setTitle("Text Editor");
         stage.setScene(scene);
         stage.setOnCloseRequest((WindowEvent event) -> {
-            MainController controller = (MainController) loader.getController();
             event.consume();
+            MainController controller = (MainController) loader.getController();
             controller.exit();
         });
         stage.show();
+        
+        MainController controller = (MainController) loader.getController();
+        controller.setFileChooser((File file) -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select file");
+            fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
+            
+            return fileChooser.showOpenDialog(stage);
+        });
     }
 
     /**

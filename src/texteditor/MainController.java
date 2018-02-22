@@ -1,5 +1,6 @@
 package texteditor;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -10,6 +11,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
@@ -17,10 +19,16 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 public class MainController implements Initializable {
+    
+    @FXML
+    private Pane borderPane;
     
     @FXML
     private MenuItem newFileMenuItem;
@@ -54,6 +62,9 @@ public class MainController implements Initializable {
     
     private boolean free = false;
     private boolean dataUnsaved;
+    private Stage stage;
+    private File file;
+    private WindowProcessor<File, File> fileChooser;
        
     @FXML
     public void newFileCreate(ActionEvent event) {
@@ -62,7 +73,7 @@ public class MainController implements Initializable {
     
     @FXML
     public void openFile(ActionEvent event) {
-        System.out.println("Opening file");
+        chooseFile();
     }
     
     @FXML
@@ -129,8 +140,8 @@ public class MainController implements Initializable {
     
     public void resetHistory(String initial) {
         history.reset(initial);
-        enableHistoryItems();
         dataUnsaved = false;
+        setText();
     }
     
     private void enableHistoryItems() {
@@ -149,6 +160,10 @@ public class MainController implements Initializable {
     
     public void setFree() {
         free = true;
+    }
+    
+    public void setFileChooser(WindowProcessor<File, File> processor) {
+        fileChooser = processor;
     }
 
     @Override
@@ -171,6 +186,7 @@ public class MainController implements Initializable {
         history = new History();
         historyManager = new HistoryManager(this);
         historyManager.start();
+        openCurrentFile();        
         
         free = true;
     }
@@ -205,6 +221,29 @@ public class MainController implements Initializable {
             new DialogCreator(reaction, question, title);
         } catch (IOException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void openCurrentFile() {
+        
+        if (file == null) {
+            resetHistory("");
+        } else {
+            System.out.println(file.getAbsolutePath());
+        }
+        
+    }
+    
+    private void chooseFile() {
+        File selectedFile = fileChooser.process(file);
+//        
+//        
+//        
+//        File selectedFile = 
+        
+        if (selectedFile != null) {
+            file = selectedFile;
+            openCurrentFile();
         }
     }
 }
