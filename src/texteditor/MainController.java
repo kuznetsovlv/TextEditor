@@ -194,7 +194,7 @@ public class MainController implements Initializable {
                 public void noReaction(ActionEvent event) {
                     System.exit(0);
                 }
-            }, "You have unsaved data. Do you want save it?", "Unsaved changes");
+            }, "You have unsaved data. Would you like to save it?", "Unsaved changes");
         } else {
             System.exit(0);
         }
