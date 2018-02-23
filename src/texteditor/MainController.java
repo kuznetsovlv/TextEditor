@@ -74,23 +74,7 @@ public class MainController implements Initializable {
     
     @FXML
     public void openFile(ActionEvent event) {
-        if (dataUnsaved) {
-            askForSaveFile(new DialogReaction() {
-                @Override
-                public void yesReaction(ActionEvent event) {
-                    if(openSaveDialog() != null) {
-                        chooseFile();
-                    }
-                }
-
-                @Override
-                public void noReaction(ActionEvent event) {
-                    chooseFile();
-                }
-            }, "You have unsaved data. Would you like to save it before open new file?");
-        } else {
-            chooseFile();
-        }
+        openOtherFile();
     }
     
     @FXML
@@ -153,13 +137,18 @@ public class MainController implements Initializable {
                     event.consume();
                     historyManager.redo();
                 } else if(key.equals(KeyCode.S)) {
+                    event.consume();
                     if(event.isShiftDown()) {
                         openSaveDialog();
                     } else {
                         saveFile();
                     }
                 } else if(key.equals(KeyCode.N)) {
+                    event.consume();
                     creAteFile();
+                } else if(key.equals(KeyCode.O)) {
+                    event.consume();
+                    openOtherFile();
                 }
             }
         });
@@ -318,6 +307,26 @@ public class MainController implements Initializable {
             new DialogCreator(reaction, question, title);
         } catch (IOException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void openOtherFile() {
+        if (dataUnsaved) {
+            askForSaveFile(new DialogReaction() {
+                @Override
+                public void yesReaction(ActionEvent event) {
+                    if(openSaveDialog() != null) {
+                        chooseFile();
+                    }
+                }
+
+                @Override
+                public void noReaction(ActionEvent event) {
+                    chooseFile();
+                }
+            }, "You have unsaved data. Would you like to save it before open new file?");
+        } else {
+            chooseFile();
         }
     }
     
