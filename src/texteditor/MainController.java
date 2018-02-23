@@ -59,14 +59,17 @@ public class MainController implements Initializable {
     
     private boolean free = false;
     private boolean dataUnsaved;
+    
     private File file;
+    
     private WindowProcessor<File, File> fileChooser;
     private WindowProcessor<File, File> destinationCooser;
     private WindowProcessor<String, Void> titleSetter;
-       
+    
+    /*EVENT HANDLERS*/
     @FXML
     public void newFileCreate(ActionEvent event) {
-        System.out.println("Creating new file");
+        creAteFile();
     }
     
     @FXML
@@ -135,63 +138,7 @@ public class MainController implements Initializable {
         historyManager.add();
     }
     
-    public void addHistory() {
-        if (!textArea.getText().equals(history.getCurrent())) {
-            history.add(textArea.getText(), textArea.getSelection());
-            enableHistoryItems();
-        }
-    }
-    
-    public void undoText() {
-        history.undo();
-        setText();
-    }
-    
-    public void redoText() {
-        history.redo();
-        setText();
-    }
-    
-    public void resetHistory(String initial) {
-        history.reset(initial);
-        setText();
-        dataUnsaved = false;
-    }
-    
-    public String getText() {
-        return textArea.getText();
-    }
-    
-    private void enableHistoryItems() {
-        undoMenuItem.setDisable(history.getCurrentIndex() <= 0);
-        redoMenuItem.setDisable(history.getCurrentIndex() >= history.size() - 1);
-    }
-    
-    
-    public boolean isFree() {
-        return free;
-    }
-    
-    public void setOccupied() {
-        free = false;
-    }
-    
-    public void setFree() {
-        free = true;
-    }
-    
-    public void setFileChooser(WindowProcessor<File, File> processor) {
-        fileChooser = processor;
-    }
-    
-    public void setDestinationChooser(WindowProcessor<File, File> processor) {
-        destinationCooser = processor;
-    }
-    
-    public void setTitleSetter(WindowProcessor<String, Void> titleSetter) {
-        this.titleSetter = titleSetter;
-    }
-
+    /*INITIALIZER*/
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         dataUnsaved = false;
@@ -211,6 +158,8 @@ public class MainController implements Initializable {
                     } else {
                         saveFile();
                     }
+                } else if(key.equals(KeyCode.N)) {
+                    creAteFile();
                 }
             }
         });
@@ -223,6 +172,71 @@ public class MainController implements Initializable {
         free = true;
     }
     
+    /*PUBLIC CONTROL METHODS*/
+    
+    /*history control*/
+    public void addHistory() {
+        if (!textArea.getText().equals(history.getCurrent())) {
+            history.add(textArea.getText(), textArea.getSelection());
+            enableHistoryItems();
+        }
+    }
+    
+    public void redoText() {
+        history.redo();
+        setText();
+    }
+    
+    public void resetHistory(String initial) {
+        history.reset(initial);
+        setText();
+        dataUnsaved = false;
+    }
+    
+    public void undoText() {
+        history.undo();
+        setText();
+    }
+    
+    /*access control methods*/
+    public boolean isFree() {
+        return free;
+    }
+    
+    public void setOccupied() {
+        free = false;
+    }
+    
+    public void setFree() {
+        free = true;
+    }
+    
+    /*getters and setters*/
+    public String getText() {
+        return textArea.getText();
+    }
+    
+    public void setDataUnsaved(boolean dataUnsaved) {
+        this.dataUnsaved = dataUnsaved;
+    }
+    
+    public void setFileChooser(WindowProcessor<File, File> processor) {
+        fileChooser = processor;
+    }
+    
+    public void setDestinationChooser(WindowProcessor<File, File> processor) {
+        destinationCooser = processor;
+    }
+    
+    public void setTitleSetter(WindowProcessor<String, Void> titleSetter) {
+        this.titleSetter = titleSetter;
+    }
+    
+    private void enableHistoryItems() {
+        undoMenuItem.setDisable(history.getCurrentIndex() <= 0);
+        redoMenuItem.setDisable(history.getCurrentIndex() >= history.size() - 1);
+    }
+    
     private void setText() {
         IndexRange selection = history.getCurrentSelection();
         textArea.setText(history.getCurrent());
@@ -230,6 +244,7 @@ public class MainController implements Initializable {
         enableHistoryItems();
     }
     
+    /*controls*/
     public void exit() {
         if (dataUnsaved) {
             askForSaveFile(new DialogReaction() {
@@ -250,19 +265,41 @@ public class MainController implements Initializable {
         }
     }
     
-    public void setDataUnsaved(boolean dataUnsaved) {
-        this.dataUnsaved = dataUnsaved;
-    }
-    
+    /*PRIVATE METHODS*/
     private void askForSaveFile(DialogReaction reaction, String question) {
         openDilog(reaction, question, "Unsaved changes");
     }
     
-    private void openDilog(DialogReaction reaction, String question, String title) {
-        try {
-            new DialogCreator(reaction, question, title);
-        } catch (IOException ex) {
-            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+    private void chooseFile() {
+        if (fileChooser == null) {
+            return;
+        }
+        
+        File selectedFile = fileChooser.process(file);
+        
+        if (selectedFile != null) {
+            file = selectedFile;
+            openCurrentFile();
+        }
+    }
+    
+    private void creAteFile() {
+        if (dataUnsaved) {
+            askForSaveFile(new DialogReaction() {
+                @Override
+                public void yesReaction(ActionEvent event) {
+                    if(openSaveDialog() != null) {
+                        startCreateProcess();
+                    }
+                }
+
+                @Override
+                public void noReaction(ActionEvent event) {
+                    startCreateProcess();
+                }
+            }, "Yuo have unsaved data. Would you like to save it before creating new file?");
+        } else {
+            startCreateProcess();
         }
     }
     
@@ -276,22 +313,11 @@ public class MainController implements Initializable {
         updateTitle();
     }
     
-    private void updateTitle() {
-        if(titleSetter != null) {
-            titleSetter.process(file != null ? file.getAbsolutePath() : TextEditor.DEFAULT_TITLE);
-        }
-    }
-    
-    private void chooseFile() {
-        if (fileChooser == null) {
-            return;
-        }
-        
-        File selectedFile = fileChooser.process(file);
-        
-        if (selectedFile != null) {
-            file = selectedFile;
-            openCurrentFile();
+    private void openDilog(DialogReaction reaction, String question, String title) {
+        try {
+            new DialogCreator(reaction, question, title);
+        } catch (IOException ex) {
+            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -310,17 +336,29 @@ public class MainController implements Initializable {
         return selectedFile;
     }
     
+    private void saveFile() {
+        if (file != null) {
+            startSaveProcess();
+            updateTitle();
+        } else {
+            openSaveDialog();
+        }
+    }
+    
+    private void startCreateProcess() {
+        resetHistory("");
+        openSaveDialog();
+    }
+    
     private void startSaveProcess() {
         if (file != null) {
             new ThreadFileWriter(file, this);
         }
     }
     
-    private void saveFile() {
-        if (file != null) {
-            startSaveProcess();
-        } else {
-            openSaveDialog();
+    private void updateTitle() {
+        if(titleSetter != null) {
+            titleSetter.process(file != null ? file.getAbsolutePath() : TextEditor.DEFAULT_TITLE);
         }
     }
 }
