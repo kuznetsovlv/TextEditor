@@ -78,6 +78,18 @@ public class HistoryManager implements Runnable {
     public void run() {
         while (inWork) {
             synchronized(controller) {
+                while(!controller.isFree()) {
+                    action = Action.NONE;
+                    
+                    try {
+                        controller.wait();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(HistoryManager.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                
+                controller.setOccupied();
+                
                 switch (action) {
                     case REDO:
                         stopTimer();
@@ -95,7 +107,10 @@ public class HistoryManager implements Runnable {
                         break;
                 }
 
-                action = Action.NONE;                
+                action = Action.NONE;
+                
+                controller.setFree();
+                controller.notifyAll();
             }
         }     
     }

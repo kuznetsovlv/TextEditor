@@ -11,7 +11,6 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
@@ -20,10 +19,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 public class MainController implements Initializable {
     
@@ -62,9 +59,10 @@ public class MainController implements Initializable {
     
     private boolean free = false;
     private boolean dataUnsaved;
-    private Stage stage;
     private File file;
     private WindowProcessor<File, File> fileChooser;
+    private WindowProcessor<File, File> destinationCooser;
+    private WindowProcessor<String, Void> titleSetter;
        
     @FXML
     public void newFileCreate(ActionEvent event) {
@@ -73,17 +71,33 @@ public class MainController implements Initializable {
     
     @FXML
     public void openFile(ActionEvent event) {
-        chooseFile();
+        if (dataUnsaved) {
+            askForSaveFile(new DialogReaction() {
+                @Override
+                public void yesReaction(ActionEvent event) {
+                    if(openSaveDialog() != null) {
+                        chooseFile();
+                    }
+                }
+
+                @Override
+                public void noReaction(ActionEvent event) {
+                    chooseFile();
+                }
+            }, "You have unsaved data. Would you like to save it before open new file?");
+        } else {
+            chooseFile();
+        }
     }
     
     @FXML
     public void saveCurrentFile(ActionEvent event) {
-        System.out.println("Saving current file");
+        saveFile();
     }
     
     @FXML
     public void saveNewFile(ActionEvent event) {
-        System.out.println("Saving new file");
+        openSaveDialog();
     }
     
     @FXML
@@ -140,8 +154,12 @@ public class MainController implements Initializable {
     
     public void resetHistory(String initial) {
         history.reset(initial);
-        dataUnsaved = false;
         setText();
+        dataUnsaved = false;
+    }
+    
+    public String getText() {
+        return textArea.getText();
     }
     
     private void enableHistoryItems() {
@@ -165,6 +183,14 @@ public class MainController implements Initializable {
     public void setFileChooser(WindowProcessor<File, File> processor) {
         fileChooser = processor;
     }
+    
+    public void setDestinationChooser(WindowProcessor<File, File> processor) {
+        destinationCooser = processor;
+    }
+    
+    public void setTitleSetter(WindowProcessor<String, Void> titleSetter) {
+        this.titleSetter = titleSetter;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -179,6 +205,12 @@ public class MainController implements Initializable {
                 } else if(key.equals(KeyCode.Y)) {
                     event.consume();
                     historyManager.redo();
+                } else if(key.equals(KeyCode.S)) {
+                    if(event.isShiftDown()) {
+                        openSaveDialog();
+                    } else {
+                        saveFile();
+                    }
                 }
             }
         });
@@ -203,20 +235,30 @@ public class MainController implements Initializable {
             askForSaveFile(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    if(openSaveDialog() != null) {
+                        System.exit(0);
+                    }
                 }
 
                 @Override
                 public void noReaction(ActionEvent event) {
                     System.exit(0);
                 }
-            }, "You have unsaved data. Would you like to save it?", "Unsaved changes");
+            }, "You have unsaved data. Would you like to save it before exit?");
         } else {
             System.exit(0);
         }
     }
     
-    private void askForSaveFile(DialogReaction reaction,  String question, String title) {
+    public void setDataUnsaved(boolean dataUnsaved) {
+        this.dataUnsaved = dataUnsaved;
+    }
+    
+    private void askForSaveFile(DialogReaction reaction, String question) {
+        openDilog(reaction, question, "Unsaved changes");
+    }
+    
+    private void openDilog(DialogReaction reaction, String question, String title) {
         try {
             new DialogCreator(reaction, question, title);
         } catch (IOException ex) {
@@ -225,25 +267,60 @@ public class MainController implements Initializable {
     }
     
     private void openCurrentFile() {
-        
         if (file == null) {
             resetHistory("");
         } else {
-            System.out.println(file.getAbsolutePath());
+            new ThreadFileReader(file, this);
         }
         
+        updateTitle();
+    }
+    
+    private void updateTitle() {
+        if(titleSetter != null) {
+            titleSetter.process(file != null ? file.getAbsolutePath() : TextEditor.DEFAULT_TITLE);
+        }
     }
     
     private void chooseFile() {
+        if (fileChooser == null) {
+            return;
+        }
+        
         File selectedFile = fileChooser.process(file);
-//        
-//        
-//        
-//        File selectedFile = 
         
         if (selectedFile != null) {
             file = selectedFile;
             openCurrentFile();
+        }
+    }
+    
+    private File openSaveDialog() {
+        if (destinationCooser == null) {
+            return null;
+        }
+        
+        File selectedFile = destinationCooser.process(file);
+        
+        if (selectedFile != null) {
+            file = selectedFile;
+            saveFile();
+        }
+        
+        return selectedFile;
+    }
+    
+    private void startSaveProcess() {
+        if (file != null) {
+            new ThreadFileWriter(file, this);
+        }
+    }
+    
+    private void saveFile() {
+        if (file != null) {
+            startSaveProcess();
+        } else {
+            openSaveDialog();
         }
     }
 }

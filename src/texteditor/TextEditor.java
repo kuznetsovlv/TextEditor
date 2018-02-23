@@ -23,6 +23,8 @@ import javafx.stage.WindowEvent;
  */
 public class TextEditor extends Application {
     
+    public static final String DEFAULT_TITLE = "Text Editor";
+    
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("TextEditorPane.fxml"));
@@ -32,7 +34,7 @@ public class TextEditor extends Application {
         Parent root = loader.load();
         Scene scene = new Scene(root);
         
-        stage.setTitle("Text Editor");
+        stage.setTitle(DEFAULT_TITLE);
         stage.setScene(scene);
         stage.setOnCloseRequest((WindowEvent event) -> {
             event.consume();
@@ -48,6 +50,23 @@ public class TextEditor extends Application {
             fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
             
             return fileChooser.showOpenDialog(stage);
+        });
+        
+        controller.setDestinationChooser((File file) -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save to");
+            fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
+            
+            if (file != null) {
+                fileChooser.setInitialFileName(file.getAbsolutePath());
+            }
+            
+            return fileChooser.showSaveDialog(stage);
+        });
+        
+        controller.setTitleSetter((String title) -> {
+            stage.setTitle(title);
+            return null;
         });
     }
 
