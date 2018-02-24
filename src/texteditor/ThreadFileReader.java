@@ -14,12 +14,20 @@ public class ThreadFileReader implements Runnable {
     
     private final File file;
     private final MainController controler;
+    private final Callback callback;
 
-    public ThreadFileReader(File file, MainController controler) {
+    public ThreadFileReader(File file, MainController controler, Callback callback) {
         this.file = file;
         this.controler = controler;
+        this.callback = callback;
         
         new Thread(this).start();
+    }
+    
+    
+
+    public ThreadFileReader(File file, MainController controler) {
+        this(file, controler, null);
     }
 
     @Override
@@ -44,6 +52,10 @@ public class ThreadFileReader implements Runnable {
                 }
 
                 controler.resetHistory(strBuld.toString());
+                
+                if (callback != null) {
+                    callback.call();
+                }
 
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(ThreadFileReader.class.getName()).log(Level.SEVERE, null, ex);

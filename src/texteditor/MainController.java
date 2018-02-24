@@ -79,12 +79,12 @@ public class MainController implements Initializable {
     
     @FXML
     public void saveCurrentFile(ActionEvent event) {
-        saveFile();
+        saveFile(null);
     }
     
     @FXML
     public void saveNewFile(ActionEvent event) {
-        openSaveDialog();
+        openSaveDialog(null);
     }
     
     @FXML
@@ -139,9 +139,9 @@ public class MainController implements Initializable {
                 } else if(key.equals(KeyCode.S)) {
                     event.consume();
                     if(event.isShiftDown()) {
-                        openSaveDialog();
+                        openSaveDialog(null);
                     } else {
-                        saveFile();
+                        saveFile(null);
                     }
                 } else if(key.equals(KeyCode.N)) {
                     event.consume();
@@ -239,9 +239,7 @@ public class MainController implements Initializable {
             askForSaveFile(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
-                    if(openSaveDialog() != null) {
-                        System.exit(0);
-                    }
+                    openSaveDialog(() -> System.exit(0));
                 }
 
                 @Override
@@ -256,7 +254,7 @@ public class MainController implements Initializable {
     
     /*PRIVATE METHODS*/
     private void askForSaveFile(DialogReaction reaction, String question) {
-        openDilog(reaction, question, "Unsaved changes");
+        openDialog(reaction, question, "Unsaved changes");
     }
     
     private void chooseFile() {
@@ -277,7 +275,8 @@ public class MainController implements Initializable {
             askForSaveFile(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
-                    if(openSaveDialog() != null) {
+                    if (openSaveDialog(null) != null) {
+                        dataUnsaved = false;
                         startCreateProcess();
                     }
                 }
@@ -302,7 +301,7 @@ public class MainController implements Initializable {
         updateTitle();
     }
     
-    private void openDilog(DialogReaction reaction, String question, String title) {
+    private void openDialog(DialogReaction reaction, String question, String title) {
         try {
             new DialogCreator(reaction, question, title);
         } catch (IOException ex) {
@@ -315,7 +314,8 @@ public class MainController implements Initializable {
             askForSaveFile(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
-                    if(openSaveDialog() != null) {
+                    if (openSaveDialog(null) != null) {
+                        dataUnsaved = false;
                         chooseFile();
                     }
                 }
@@ -330,7 +330,7 @@ public class MainController implements Initializable {
         }
     }
     
-    private File openSaveDialog() {
+    private File openSaveDialog(Callback callback) {
         if (destinationCooser == null) {
             return null;
         }
@@ -339,29 +339,35 @@ public class MainController implements Initializable {
         
         if (selectedFile != null) {
             file = selectedFile;
-            saveFile();
+            saveFile(callback);
         }
         
         return selectedFile;
     }
     
-    private void saveFile() {
+    private void saveFile(Callback callback) {
         if (file != null) {
-            startSaveProcess();
+            startSaveProcess(callback);
             updateTitle();
         } else {
-            openSaveDialog();
+            openSaveDialog(callback);
         }
     }
     
     private void startCreateProcess() {
         resetHistory("");
-        openSaveDialog();
+        openSaveDialog(null);
     }
     
-    private void startSaveProcess() {
+    private void startSaveProcess(Callback callback) {
         if (file != null) {
-            new ThreadFileWriter(file, this);
+            ThreadFileWriter writer = new ThreadFileWriter(file, this, callback);
+            writer.start();
+            try {
+                writer.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
