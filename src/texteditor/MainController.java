@@ -293,7 +293,7 @@ public class MainController implements Initializable {
     
     private void openCurrentFile() {
         if (file == null) {
-            resetHistory("");
+            historyManager.resetHistory("");
         } else {
             new ThreadFileReader(file, this);
         }
