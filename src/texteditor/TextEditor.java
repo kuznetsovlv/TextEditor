@@ -42,32 +42,6 @@ public class TextEditor extends Application {
             controller.exit();
         });
         stage.show();
-        
-        MainController controller = (MainController) loader.getController();
-        controller.setFileChooser((File file) -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select file");
-            fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
-            
-            return fileChooser.showOpenDialog(stage);
-        });
-        
-        controller.setDestinationChooser((File file) -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save to");
-            fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
-            
-            if (file != null) {
-                fileChooser.setInitialFileName(file.getAbsolutePath());
-            }
-            
-            return fileChooser.showSaveDialog(stage);
-        });
-        
-        controller.setTitleSetter((String title) -> {
-            stage.setTitle(title);
-            return null;
-        });
     }
 
     /**

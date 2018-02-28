@@ -40,7 +40,7 @@ public class ThreadFileWriter implements Runnable{
     @Override
     public void run() {
         synchronized(controler) {
-            while(!controler.isFree()) {
+            while(!controler.isAvailableFor(this)) {
                 try {
                     controler.wait();
                 } catch (InterruptedException ex) {
@@ -48,7 +48,7 @@ public class ThreadFileWriter implements Runnable{
                 }
             }
             
-            controler.setOccupied();
+            controler.setOccupied(this);
             
             try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), FileOperationData.DEFAULT_ENCODING))) {
                 writer.write(controler.getText());

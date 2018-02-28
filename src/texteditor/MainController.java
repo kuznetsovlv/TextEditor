@@ -56,15 +56,11 @@ public class MainController implements Initializable {
     
     private History history;
     private HistoryManager historyManager;
+    private Object occupiedBy;
     
-    private boolean free = false;
     private boolean dataUnsaved;
     
     private File file;
-    
-    private WindowProcessor<File, File> fileChooser;
-    private WindowProcessor<File, File> destinationCooser;
-    private WindowProcessor<String, Void> titleSetter;
     
     /*EVENT HANDLERS*/
     @FXML
@@ -158,7 +154,7 @@ public class MainController implements Initializable {
         historyManager.start();
         openCurrentFile();        
         
-        free = true;
+        occupiedBy = null;
     }
     
     /*PUBLIC CONTROL METHODS*/
@@ -188,16 +184,16 @@ public class MainController implements Initializable {
     }
     
     /*access control methods*/
-    public boolean isFree() {
-        return free;
+    public boolean isAvailableFor(Object obj) {
+        return occupiedBy == null || occupiedBy == obj;
     }
     
-    public void setOccupied() {
-        free = false;
+    public void setOccupied(Object obj) {
+        occupiedBy = obj;
     }
     
     public void setFree() {
-        free = true;
+        occupiedBy = null;
     }
     
     /*getters and setters*/
@@ -207,18 +203,6 @@ public class MainController implements Initializable {
     
     public void setDataUnsaved(boolean dataUnsaved) {
         this.dataUnsaved = dataUnsaved;
-    }
-    
-    public void setFileChooser(WindowProcessor<File, File> processor) {
-        fileChooser = processor;
-    }
-    
-    public void setDestinationChooser(WindowProcessor<File, File> processor) {
-        destinationCooser = processor;
-    }
-    
-    public void setTitleSetter(WindowProcessor<String, Void> titleSetter) {
-        this.titleSetter = titleSetter;
     }
     
     private void enableHistoryItems() {
@@ -258,16 +242,16 @@ public class MainController implements Initializable {
     }
     
     private void chooseFile() {
-        if (fileChooser == null) {
-            return;
-        }
-        
-        File selectedFile = fileChooser.process(file);
-        
-        if (selectedFile != null) {
-            file = selectedFile;
-            openCurrentFile();
-        }
+//        if (fileChooser == null) {
+//            return;
+//        }
+//        
+//        File selectedFile = fileChooser.process(file);
+//        
+//        if (selectedFile != null) {
+//            file = selectedFile;
+//            openCurrentFile();
+//        }
     }
     
     private void creAteFile() {
@@ -331,18 +315,19 @@ public class MainController implements Initializable {
     }
     
     private File openSaveDialog(Callback callback) {
-        if (destinationCooser == null) {
-            return null;
-        }
-        
-        File selectedFile = destinationCooser.process(file);
-        
-        if (selectedFile != null) {
-            file = selectedFile;
-            saveFile(callback);
-        }
-        
-        return selectedFile;
+//        if (destinationCooser == null) {
+//            return null;
+//        }
+//        
+//        File selectedFile = destinationCooser.process(file);
+//        
+//        if (selectedFile != null) {
+//            file = selectedFile;
+//            saveFile(callback);
+//        }
+//        
+//        return selectedFile;
+        return null;
     }
     
     private void saveFile(Callback callback) {
@@ -372,8 +357,8 @@ public class MainController implements Initializable {
     }
     
     private void updateTitle() {
-        if(titleSetter != null) {
-            titleSetter.process(file != null ? file.getAbsolutePath() : TextEditor.DEFAULT_TITLE);
-        }
+//        if(titleSetter != null) {
+//            titleSetter.process(file != null ? file.getAbsolutePath() : TextEditor.DEFAULT_TITLE);
+//        }
     }
 }

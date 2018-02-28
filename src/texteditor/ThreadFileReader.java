@@ -33,7 +33,7 @@ public class ThreadFileReader implements Runnable {
     @Override
     public void run() {
         synchronized(controler) {
-            while(!controler.isFree()) {
+            while(!controler.isAvailableFor(this)) {
                 try {
                     controler.wait();
                 } catch (InterruptedException ex) {
@@ -41,7 +41,7 @@ public class ThreadFileReader implements Runnable {
                 }    
             }
             
-            controler.setOccupied();
+            controler.setOccupied(this);
                 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), FileOperationData.DEFAULT_ENCODING))) {
                 String line;
