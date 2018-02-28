@@ -10,7 +10,7 @@ import javax.swing.Timer;
 
 enum Action { NONE, UNDO, REDO, ADD, RESET };
 
-public class HistoryManager implements Runnable {
+class HistoryManager implements Runnable {
     
     static private final int SAVE_DELAY = 20;
     

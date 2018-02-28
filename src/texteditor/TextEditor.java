@@ -28,9 +28,7 @@ public class TextEditor extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("TextEditorPane.fxml"));
-        
-        
-        
+         
         Parent root = loader.load();
         Scene scene = new Scene(root);
         
@@ -42,6 +40,34 @@ public class TextEditor extends Application {
             controller.exit();
         });
         stage.show();
+        
+        DialogManager.instance(stage);
+        
+//        MainController controller = (MainController) loader.getController();
+//        controller.setFileChooser((File file) -> {
+//            FileChooser fileChooser = new FileChooser();
+//            fileChooser.setTitle("Select file");
+//            fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
+//            
+//            return fileChooser.showOpenDialog(stage);
+//        });
+//        
+//        controller.setDestinationChooser((File file) -> {
+//            
+//            
+//            
+//            
+//            if (file != null) {
+//                fileChooser.setInitialFileName(file.getAbsolutePath());
+//            }
+//            
+//            return fileChooser.showSaveDialog(stage);
+//        });
+//        
+//        controller.setTitleSetter((String title) -> {
+//            stage.setTitle(title);
+//            return null;
+//        });
     }
 
     /**

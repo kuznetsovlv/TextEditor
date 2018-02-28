@@ -75,12 +75,12 @@ public class MainController implements Initializable {
     
     @FXML
     public void saveCurrentFile(ActionEvent event) {
-        saveFile(null);
+        saveFile();
     }
     
     @FXML
     public void saveNewFile(ActionEvent event) {
-        openSaveDialog(null);
+        openSaveDialog();
     }
     
     @FXML
@@ -135,9 +135,9 @@ public class MainController implements Initializable {
                 } else if(key.equals(KeyCode.S)) {
                     event.consume();
                     if(event.isShiftDown()) {
-                        openSaveDialog(null);
+                        openSaveDialog();
                     } else {
-                        saveFile(null);
+                        saveFile();
                     }
                 } else if(key.equals(KeyCode.N)) {
                     event.consume();
@@ -152,7 +152,9 @@ public class MainController implements Initializable {
         history = new History();
         historyManager = new HistoryManager(this);
         historyManager.start();
-        openCurrentFile();        
+        openCurrentFile();
+        
+        DialogManager.instance().setController(this);
         
         occupiedBy = null;
     }
@@ -191,7 +193,7 @@ public class MainController implements Initializable {
     public void setOccupied(Object obj) {
         occupiedBy = obj;
     }
-    
+
     public void setFree() {
         occupiedBy = null;
     }
@@ -223,7 +225,9 @@ public class MainController implements Initializable {
             askForSaveFile(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
-                    openSaveDialog(() -> System.exit(0));
+                    if (openSaveDialog() != null) {
+                        System.exit(0);
+                    }
                 }
 
                 @Override
@@ -255,24 +259,24 @@ public class MainController implements Initializable {
     }
     
     private void creAteFile() {
-        if (dataUnsaved) {
-            askForSaveFile(new DialogReaction() {
-                @Override
-                public void yesReaction(ActionEvent event) {
-                    if (openSaveDialog(null) != null) {
-                        dataUnsaved = false;
-                        startCreateProcess();
-                    }
-                }
-
-                @Override
-                public void noReaction(ActionEvent event) {
-                    startCreateProcess();
-                }
-            }, "Yuo have unsaved data. Would you like to save it before creating new file?");
-        } else {
-            startCreateProcess();
-        }
+//        if (dataUnsaved) {
+//            askForSaveFile(new DialogReaction() {
+//                @Override
+//                public void yesReaction(ActionEvent event) {
+//                    if (openSaveDialog(null) != null) {
+//                        dataUnsaved = false;
+//                        startCreateProcess();
+//                    }
+//                }
+//
+//                @Override
+//                public void noReaction(ActionEvent event) {
+//                    startCreateProcess();
+//                }
+//            }, "Yuo have unsaved data. Would you like to save it before creating new file?");
+//        } else {
+//            startCreateProcess();
+//        }
     }
     
     private void openCurrentFile() {
@@ -294,71 +298,58 @@ public class MainController implements Initializable {
     }
     
     private void openOtherFile() {
-        if (dataUnsaved) {
-            askForSaveFile(new DialogReaction() {
-                @Override
-                public void yesReaction(ActionEvent event) {
-                    if (openSaveDialog(null) != null) {
-                        dataUnsaved = false;
-                        chooseFile();
-                    }
-                }
-
-                @Override
-                public void noReaction(ActionEvent event) {
-                    chooseFile();
-                }
-            }, "You have unsaved data. Would you like to save it before open new file?");
-        } else {
-            chooseFile();
-        }
+//        if (dataUnsaved) {
+//            askForSaveFile(new DialogReaction() {
+//                @Override
+//                public void yesReaction(ActionEvent event) {
+//                    if (openSaveDialog(null) != null) {
+//                        dataUnsaved = false;
+//                        chooseFile();
+//                    }
+//                }
+//
+//                @Override
+//                public void noReaction(ActionEvent event) {
+//                    chooseFile();
+//                }
+//            }, "You have unsaved data. Would you like to save it before open new file?");
+//        } else {
+//            chooseFile();
+//        }
     }
     
-    private File openSaveDialog(Callback callback) {
-//        if (destinationCooser == null) {
-//            return null;
-//        }
-//        
-//        File selectedFile = destinationCooser.process(file);
-//        
-//        if (selectedFile != null) {
-//            file = selectedFile;
-//            saveFile(callback);
-//        }
-//        
-//        return selectedFile;
-        return null;
+    private File openSaveDialog() {
+        file = DialogManager.instance().saveByDialog(file);
+        updateTitle();
+        setDataUnsaved(file == null);
+        return file;
     }
     
-    private void saveFile(Callback callback) {
-        if (file != null) {
-            startSaveProcess(callback);
-            updateTitle();
-        } else {
-            openSaveDialog(callback);
-        }
+    private File saveFile() {
+        file = DialogManager.instance().saveFile(file);
+        updateTitle();
+        setDataUnsaved(file == null);
+        return file;
     }
     
     private void startCreateProcess() {
         resetHistory("");
-        openSaveDialog(null);
+        openSaveDialog();
     }
     
     private void startSaveProcess(Callback callback) {
-        if (file != null) {
-            ThreadFileWriter writer = new ThreadFileWriter(file, this, callback);
-            writer.start();
-            try {
-                writer.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+//        if (file != null) {
+//            ThreadFileWriter writer = new ThreadFileWriter(file, this, callback);
+//            writer.start();
+//            try {
+//                writer.join();
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
     }
     
     private void updateTitle() {
-//        if(titleSetter != null) {
-//            titleSetter.process(file != null ? file.getAbsolutePath() : TextEditor.DEFAULT_TITLE);
-//        }
+        DialogManager.instance().setMainTitle(file != null ? file.getAbsolutePath() : null);
     }
 }

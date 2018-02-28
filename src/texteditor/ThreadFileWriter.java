@@ -10,23 +10,23 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ThreadFileWriter implements Runnable{
+class ThreadFileWriter implements Runnable{
     private final File file;
     private final MainController controler;
-    private final Callback callback;
-    
     private final Thread thread;
+    private ProcessState state;
 
-    public ThreadFileWriter(File file, MainController controler, Callback callback) {
+    public ThreadFileWriter(File file, MainController controler) {
         this.file = file;
         this.controler = controler;
-        this.callback = callback;
+        
+        state = ProcessState.WAITING;
         
         thread = new Thread(this);
     }
     
-    public ThreadFileWriter(File file, MainController controler) {
-        this(file, controler, null);
+    public ProcessState getState() {
+        return state;
     }
     
     public void join() throws InterruptedException {
@@ -34,6 +34,7 @@ public class ThreadFileWriter implements Runnable{
     }
     
     public void start() {
+        state = ProcessState.IN_PROGRESS;
         thread.start();
     }
 
@@ -52,23 +53,33 @@ public class ThreadFileWriter implements Runnable{
             
             try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), FileOperationData.DEFAULT_ENCODING))) {
                 writer.write(controler.getText());
-                controler.setDataUnsaved(false);
                 
-                if (callback != null) {
-                    callback.call();
-                }
             } catch (FileNotFoundException ex) {
+                stop(ProcessState.FAILED);
                 Logger.getLogger(ThreadFileWriter.class.getName()).log(Level.SEVERE, null, ex);
             } catch (UnsupportedEncodingException ex) {
+                stop(ProcessState.FAILED);
                 Logger.getLogger(ThreadFileWriter.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
+                stop(ProcessState.FAILED);
                 Logger.getLogger(ThreadFileWriter.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 controler.setFree();
                 controler.notifyAll();
+                stop();
             }
         }
     }
     
+    private void stop() {
+        stop(ProcessState.SUCCESS);
+    }
     
+    private void stop(ProcessState state) {
+        if(this.state != ProcessState.IN_PROGRESS) {
+            return;
+        }
+        
+        this.state = state != null ? state : ProcessState.STOPPED;
+    }
 }
