@@ -1,4 +1,4 @@
-package texteditor;
+package texteditor.fileoperations;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,14 +9,16 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import texteditor.Callback;
+import texteditor.monitor.Monitor;
 
-public class ThreadFileReader implements Runnable {
+public class ThreadTextFileReader implements Runnable {
     
     private final File file;
-    private final MainController controler;
+    private final Monitor controler;
     private final Callback callback;
 
-    public ThreadFileReader(File file, MainController controler, Callback callback) {
+    public ThreadTextFileReader(File file, Monitor controler, Callback callback) {
         this.file = file;
         this.controler = controler;
         this.callback = callback;
@@ -26,7 +28,7 @@ public class ThreadFileReader implements Runnable {
     
     
 
-    public ThreadFileReader(File file, MainController controler) {
+    public ThreadTextFileReader(File file, Monitor controler) {
         this(file, controler, null);
     }
 
@@ -37,7 +39,7 @@ public class ThreadFileReader implements Runnable {
                 try {
                     controler.wait();
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(ThreadFileReader.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
                 }    
             }
             
@@ -51,18 +53,18 @@ public class ThreadFileReader implements Runnable {
                     strBuld.append(line).append("\n");
                 }
 
-                controler.resetHistory(strBuld.toString());
+//                controler.resetHistory(strBuld.toString());
                 
                 if (callback != null) {
                     callback.call();
                 }
 
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(ThreadFileReader.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(ThreadFileReader.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(ThreadFileReader.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 controler.setFree();
                 controler.notifyAll();

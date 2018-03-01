@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package texteditor;
 
-import java.io.File;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -13,9 +7,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import texteditor.windows.DialogManager;
+import texteditor.windows.MainController;
 
 /**
  *
@@ -27,21 +22,8 @@ public class TextEditor extends Application {
     
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("TextEditorPane.fxml"));
-         
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        
-        stage.setTitle(DEFAULT_TITLE);
-        stage.setScene(scene);
-        stage.setOnCloseRequest((WindowEvent event) -> {
-            event.consume();
-            MainController controller = (MainController) loader.getController();
-            controller.exit();
-        });
-        stage.show();
-        
-        DialogManager.instance(stage);
+        DialogManager.instance(stage).setDefaultTitle(DEFAULT_TITLE);
+        DialogManager.instance().start();
         
 //        MainController controller = (MainController) loader.getController();
 //        controller.setFileChooser((File file) -> {

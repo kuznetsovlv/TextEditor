@@ -1,4 +1,4 @@
-package texteditor;
+package texteditor.fileoperations;
 
 
 public class FileOperationData {

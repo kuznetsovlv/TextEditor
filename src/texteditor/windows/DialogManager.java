@@ -1,14 +1,19 @@
-package texteditor;
+package texteditor.windows;
 
 import java.io.File;
+import java.io.IOException;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
-class DialogManager {
+public class DialogManager {
     
     private static DialogManager dialogManager;
     private Stage stage;
-    private MainController controller;
+    private String defaultTitle;
 
     private DialogManager() {
         dialogManager = this;
@@ -18,7 +23,6 @@ class DialogManager {
         this();
         setStage(stage);
     }
-    
     
     public static DialogManager instance(Stage stage) {
         if (dialogManager == null) {
@@ -38,11 +42,26 @@ class DialogManager {
         return dialogManager;
     }
     
-    public void setController(MainController controller) {
-        this.controller = controller;
+    public void start() throws IOException {
+        if (stage == null) {
+            return;
+        }
+        
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("TextEditorPane.fxml"));
+        
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        
+        stage.setScene(scene);
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            event.consume();
+            MainController controller = (MainController) loader.getController();
+            controller.exit();
+        });
+        stage.show();
     }
     
-    public File saveByDialog(File file) {
+    public File openSaveDialog(File file) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save to");
         fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
@@ -51,33 +70,16 @@ class DialogManager {
             fileChooser.setInitialFileName(file.getAbsolutePath());
         }
         
-        file = fileChooser.showSaveDialog(stage);
-        
-        return file != null ? saveFile(file) : null;
+        return fileChooser.showSaveDialog(stage);
     }
     
-    public File saveFile(File file) {
-        if (file == null) {
-            file = saveByDialog(null);
-        } else {
-            try {
-                ThreadFileWriter writer = new ThreadFileWriter(file, controller);
-                writer.start();
-                writer.join();
-                if (writer.getState() != ProcessState.SUCCESS) {
-                    file = null;
-                }
-            } catch(Exception e) {
-                file = null;
-            }
-        }
-        
-        return file;
+    public void setDefaultTitle(String defaultTitle) {
+        this.defaultTitle = defaultTitle;
     }
     
     public void setMainTitle (String title) {
         if (stage != null) {
-            stage.setTitle(title != null ? title : TextEditor.DEFAULT_TITLE);
+            stage.setTitle(title != null ? title : defaultTitle != null ? defaultTitle : "");
         }
     }
     

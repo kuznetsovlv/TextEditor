@@ -1,4 +1,4 @@
-package texteditor;
+package texteditor.windows;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +21,15 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import texteditor.DialogCreator;
+import texteditor.DialogReaction;
+import texteditor.History;
+import texteditor.HistoryManager;
+import texteditor.fileoperations.SyncFileManager;
+import texteditor.fileoperations.ThreadTextFileReader;
+import texteditor.monitor.Monitor;
 
-public class MainController implements Initializable {
+public class MainController implements Initializable, Monitor {
     
     @FXML
     private Pane borderPane;
@@ -56,7 +63,7 @@ public class MainController implements Initializable {
     
     private History history;
     private HistoryManager historyManager;
-    private Object occupiedBy;
+    private Runnable occupiedBy;
     
     private boolean dataUnsaved;
     
@@ -65,7 +72,7 @@ public class MainController implements Initializable {
     /*EVENT HANDLERS*/
     @FXML
     public void newFileCreate(ActionEvent event) {
-        creAteFile();
+        createFile();
     }
     
     @FXML
@@ -80,7 +87,9 @@ public class MainController implements Initializable {
     
     @FXML
     public void saveNewFile(ActionEvent event) {
-        openSaveDialog();
+        if (selectOutput() != null) {
+            saveFile();
+        }
     }
     
     @FXML
@@ -135,13 +144,13 @@ public class MainController implements Initializable {
                 } else if(key.equals(KeyCode.S)) {
                     event.consume();
                     if(event.isShiftDown()) {
-                        openSaveDialog();
+                        selectOutput();
                     } else {
                         saveFile();
                     }
                 } else if(key.equals(KeyCode.N)) {
                     event.consume();
-                    creAteFile();
+                    createFile();
                 } else if(key.equals(KeyCode.O)) {
                     event.consume();
                     openOtherFile();
@@ -153,8 +162,6 @@ public class MainController implements Initializable {
         historyManager = new HistoryManager(this);
         historyManager.start();
         openCurrentFile();
-        
-        DialogManager.instance().setController(this);
         
         occupiedBy = null;
     }
@@ -186,14 +193,17 @@ public class MainController implements Initializable {
     }
     
     /*access control methods*/
-    public boolean isAvailableFor(Object obj) {
-        return occupiedBy == null || occupiedBy == obj;
+    @Override
+    public boolean isAvailableFor(Runnable r) {
+        return occupiedBy == null || occupiedBy == r;
     }
     
-    public void setOccupied(Object obj) {
-        occupiedBy = obj;
+    @Override
+    public void setOccupied(Runnable r) {
+        occupiedBy = r;
     }
 
+    @Override
     public void setFree() {
         occupiedBy = null;
     }
@@ -225,7 +235,7 @@ public class MainController implements Initializable {
             askForSaveFile(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
-                    if (openSaveDialog() != null) {
+                    if (selectOutput() != null) {
                         System.exit(0);
                     }
                 }
@@ -258,32 +268,31 @@ public class MainController implements Initializable {
 //        }
     }
     
-    private void creAteFile() {
-//        if (dataUnsaved) {
-//            askForSaveFile(new DialogReaction() {
-//                @Override
-//                public void yesReaction(ActionEvent event) {
-//                    if (openSaveDialog(null) != null) {
-//                        dataUnsaved = false;
-//                        startCreateProcess();
-//                    }
-//                }
-//
-//                @Override
-//                public void noReaction(ActionEvent event) {
-//                    startCreateProcess();
-//                }
-//            }, "Yuo have unsaved data. Would you like to save it before creating new file?");
-//        } else {
-//            startCreateProcess();
-//        }
+    private void createFile() {
+        if (dataUnsaved) {
+            askForSaveFile(new DialogReaction() {
+                @Override
+                public void yesReaction(ActionEvent event) {
+                    if(selectOutput() != null && saveFile() != null) {
+                        startCreateProcess();
+                    }
+                }
+
+                @Override
+                public void noReaction(ActionEvent event) {
+                    startCreateProcess();
+                }
+            }, "You have unsaved data. Would you like to save it before creating new file?");
+        } else {
+            startCreateProcess();
+        }
     }
     
     private void openCurrentFile() {
         if (file == null) {
             historyManager.resetHistory("");
         } else {
-            new ThreadFileReader(file, this);
+            new ThreadTextFileReader(file, this);
         }
         
         updateTitle();
@@ -318,35 +327,33 @@ public class MainController implements Initializable {
 //        }
     }
     
-    private File openSaveDialog() {
-        file = DialogManager.instance().saveByDialog(file);
+    private File selectOutput() {
+        file = DialogManager.instance().openSaveDialog(file);
         updateTitle();
         setDataUnsaved(file == null);
         return file;
     }
     
     private File saveFile() {
-        file = DialogManager.instance().saveFile(file);
-        updateTitle();
+        if (file == null) {
+            file = selectOutput();
+        }
+        
+        try {
+            file = SyncFileManager.instance().writeStringFile(file, textArea.getText(), this);
+        } catch(Exception e) {
+            file = null;
+        }
+        
         setDataUnsaved(file == null);
+        
         return file;
     }
     
     private void startCreateProcess() {
         resetHistory("");
-        openSaveDialog();
-    }
-    
-    private void startSaveProcess(Callback callback) {
-//        if (file != null) {
-//            ThreadFileWriter writer = new ThreadFileWriter(file, this, callback);
-//            writer.start();
-//            try {
-//                writer.join();
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
+        file = null;
+        updateTitle();
     }
     
     private void updateTitle() {

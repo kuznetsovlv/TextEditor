@@ -1,16 +1,16 @@
 package texteditor;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
+import texteditor.windows.MainController;
 
 enum Action { NONE, UNDO, REDO, ADD, RESET };
 
-class HistoryManager implements Runnable {
+public class HistoryManager implements Runnable {
     
     static private final int SAVE_DELAY = 20;
     
