@@ -281,8 +281,11 @@ public class MainController implements Initializable, Monitor {
     }
     
     private void openCurrentFile() {
+        setDataUnsaved(false);
+        
         if (file == null) {
             historyManager.resetHistory("");
+            updateTitle();
         } else {
             String text = null;
             
@@ -295,13 +298,12 @@ public class MainController implements Initializable, Monitor {
             } catch (InterruptedException ex) {
                 file = null;
             } finally {
+                final String resText = text != null ? text : "";
                 updateTitle();
-                setDataUnsaved(false);
-                textArea.setText(text != null ? text : "");
+                historyManager.resetHistory(resText);
+                textArea.setText(resText);
             }
         }
-        
-        updateTitle();
     }
     
     private void openDialog(DialogReaction reaction, String question, String title) {
