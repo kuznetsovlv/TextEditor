@@ -16,20 +16,36 @@ public class ThreadTextFileReader implements Runnable {
     
     private final File file;
     private final Monitor controler;
-    private final Callback callback;
-
-    public ThreadTextFileReader(File file, Monitor controler, Callback callback) {
-        this.file = file;
-        this.controler = controler;
-        this.callback = callback;
-        
-        new Thread(this).start();
-    }
+    private final Thread thread;
     
-    
+    private ProcessState state;
+    private StringBuilder textBuilder;
 
     public ThreadTextFileReader(File file, Monitor controler) {
-        this(file, controler, null);
+        this.file = file;
+        this.controler = controler;
+        
+        state = ProcessState.WAITING;
+        
+        thread = new Thread(this);
+    }
+    
+    public ProcessState getState() {
+        return state;
+    }
+    
+    public void start() {
+        textBuilder = new StringBuilder("");
+        state = ProcessState.IN_PROGRESS;
+        thread.start();
+    }
+    
+    public void join() throws InterruptedException {
+        thread.join();
+    }
+    
+    public String getText() {
+        return state == ProcessState.SUCCESS && textBuilder != null ? textBuilder.toString() : null;
     }
 
     @Override
@@ -47,23 +63,19 @@ public class ThreadTextFileReader implements Runnable {
                 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), FileOperationData.DEFAULT_ENCODING))) {
                 String line;
-                StringBuilder strBuld = new StringBuilder();
 
                 while((line = reader.readLine()) != null) {
-                    strBuld.append(line).append("\n");
+                    textBuilder.append(line).append("\n");
                 }
-
-//                controler.resetHistory(strBuld.toString());
-                
-                if (callback != null) {
-                    callback.call();
-                }
-
+                state = ProcessState.SUCCESS;
             } catch (FileNotFoundException ex) {
+                state = ProcessState.FAILED;
                 Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
             } catch (UnsupportedEncodingException ex) {
+                state = ProcessState.FAILED;
                 Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
+                state = ProcessState.FAILED;
                 Logger.getLogger(ThreadTextFileReader.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 controler.setFree();

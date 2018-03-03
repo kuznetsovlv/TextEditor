@@ -17,7 +17,7 @@ public class SyncFileManager {
         return fileManager;
     }
     
-    public File writeStringFile(File file, String str, Monitor monitor) throws InterruptedException {
+    public File writeTextFile(File file, String str, Monitor monitor) throws InterruptedException {
         ThreadTextFileWriter writer = new ThreadTextFileWriter(file, str, monitor);
         writer.start();
         writer.join();
@@ -25,5 +25,11 @@ public class SyncFileManager {
         return writer.getState() == ProcessState.SUCCESS ? file : null;
     }
     
-    
+    public String readTextFile(File file, Monitor monitor) throws InterruptedException {
+        ThreadTextFileReader reader = new ThreadTextFileReader(file, monitor);
+        reader.start();
+        reader.join();
+        
+        return reader.getState() == ProcessState.SUCCESS ? reader.getText() : null;
+    }
 }

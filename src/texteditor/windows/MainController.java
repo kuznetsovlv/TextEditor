@@ -256,16 +256,8 @@ public class MainController implements Initializable, Monitor {
     }
     
     private void chooseFile() {
-//        if (fileChooser == null) {
-//            return;
-//        }
-//        
-//        File selectedFile = fileChooser.process(file);
-//        
-//        if (selectedFile != null) {
-//            file = selectedFile;
-//            openCurrentFile();
-//        }
+        file = DialogManager.instance().openChoseDialog(file);
+        openCurrentFile();
     }
     
     private void createFile() {
@@ -292,7 +284,21 @@ public class MainController implements Initializable, Monitor {
         if (file == null) {
             historyManager.resetHistory("");
         } else {
-            new ThreadTextFileReader(file, this);
+            String text = null;
+            
+            try {
+                text = SyncFileManager.instance().readTextFile(file, this);
+                
+                if(text == null) {
+                    file = null;
+                }
+            } catch (InterruptedException ex) {
+                file = null;
+            } finally {
+                updateTitle();
+                setDataUnsaved(false);
+                textArea.setText(text != null ? text : "");
+            }
         }
         
         updateTitle();
@@ -307,30 +313,30 @@ public class MainController implements Initializable, Monitor {
     }
     
     private void openOtherFile() {
-//        if (dataUnsaved) {
-//            askForSaveFile(new DialogReaction() {
-//                @Override
-//                public void yesReaction(ActionEvent event) {
-//                    if (openSaveDialog(null) != null) {
-//                        dataUnsaved = false;
-//                        chooseFile();
-//                    }
-//                }
-//
-//                @Override
-//                public void noReaction(ActionEvent event) {
-//                    chooseFile();
-//                }
-//            }, "You have unsaved data. Would you like to save it before open new file?");
-//        } else {
-//            chooseFile();
-//        }
+        if (dataUnsaved) {
+            askForSaveFile(new DialogReaction() {
+                @Override
+                public void yesReaction(ActionEvent event) {
+                    if(selectOutput() != null) {
+                        if(saveFile() != null) {
+                            chooseFile();
+                        }
+                    }
+                }
+
+                @Override
+                public void noReaction(ActionEvent event) {
+                    chooseFile();
+                }
+            }, "You have unsaved data. Would you like to save it before open new file?");
+        } else {
+            chooseFile();
+        }
     }
     
     private File selectOutput() {
         file = DialogManager.instance().openSaveDialog(file);
         updateTitle();
-        setDataUnsaved(file == null);
         return file;
     }
     
@@ -340,7 +346,7 @@ public class MainController implements Initializable, Monitor {
         }
         
         try {
-            file = SyncFileManager.instance().writeStringFile(file, textArea.getText(), this);
+            file = SyncFileManager.instance().writeTextFile(file, textArea.getText(), this);
         } catch(Exception e) {
             file = null;
         }

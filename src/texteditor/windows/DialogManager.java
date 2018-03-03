@@ -62,15 +62,19 @@ public class DialogManager {
     }
     
     public File openSaveDialog(File file) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save to");
-        fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
+        FileChooser fileChooser = createFileChooser(file, "Save to");
         
         if (file != null) {
             fileChooser.setInitialFileName(file.getAbsolutePath());
         }
         
         return fileChooser.showSaveDialog(stage);
+    }
+    
+    public File openChoseDialog(File file) {
+        FileChooser fileChooser = createFileChooser(file, "Select file");
+        
+        return fileChooser.showOpenDialog(stage);
     }
     
     public void setDefaultTitle(String defaultTitle) {
@@ -87,4 +91,11 @@ public class DialogManager {
         this.stage = stage;
     }
     
+    private FileChooser createFileChooser(File file, String title) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+        fileChooser.setInitialDirectory(new File(file != null ? file.getParent() : System.getenv("PWD")));
+        
+        return fileChooser;
+    }
 }

@@ -27,29 +27,29 @@ public class DialogPaneController implements Initializable {
     
     @FXML
     public void yesButtonClick(ActionEvent event) {
+        closeDialog(event);
+        
         if (reaction != null) {
             reaction.yesReaction(event);
         }
-        
-        closeDialog(event);
     }
     
     @FXML
     public void noButtonClick(ActionEvent event) {
+        closeDialog(event);
+        
         if (reaction != null) {
             reaction.noReaction(event);
         }
-        
-        closeDialog(event);
     }
     
     @FXML
     public void cancelButtonClick(ActionEvent event) {
+        closeDialog(event);
+        
         if (reaction != null) {
             reaction.cancelReaction(event);
         }
-        
-        closeDialog(event);
     }
     
     private void closeDialog(ActionEvent event) {
