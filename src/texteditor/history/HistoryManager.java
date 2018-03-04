@@ -105,15 +105,16 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
                             stopTimer();
                             history.reset(newHistoryValue);
                             setController();
+                            break;
                         case ADD:
                             addHistory();
                             break;
                     }
                     
                     actions.remove(0);
-                    controller.setFree();
                 }
                 
+                controller.setFree();
                 controller.notifyAll();
             }
         }     
