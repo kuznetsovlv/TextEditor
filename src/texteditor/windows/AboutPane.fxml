@@ -12,7 +12,7 @@
     id="BorderPane"
     prefHeight="200.0" prefWidth="270.0"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="texteditor.AboutPaneController"
+    fx:controller="texteditor.windows.AboutPaneController"
 >
     <center>
         <FlowPane prefHeight="150.0" prefWidth="270.0">

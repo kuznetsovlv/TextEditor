@@ -7,18 +7,13 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import texteditor.History;
 import texteditor.HistoryManager;
 import texteditor.fileoperations.SyncFileManager;
@@ -104,16 +99,7 @@ public class MainController implements Initializable, Monitor {
     
     @FXML
     public void showAboutProgram(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("AboutPane.fxml"));
-        
-        Scene scene = new Scene(root);
-        
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("About");
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+        DialogManager.instance().showAboutWindow();
     }
     
     @FXML

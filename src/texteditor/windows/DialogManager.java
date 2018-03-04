@@ -2,15 +2,11 @@ package texteditor.windows;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -92,6 +88,19 @@ public class DialogManager {
         } catch (IOException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void showAboutWindow() throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("AboutPane.fxml"));
+        
+        Scene scene = new Scene(root);
+        
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("About");
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.show();
     }
     
     public void setDefaultTitle(String defaultTitle) {
