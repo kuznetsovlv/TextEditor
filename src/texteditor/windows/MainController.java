@@ -257,6 +257,7 @@ public class MainController implements Initializable, HistoryClient {
                 updateTitle();
                 historyManager.resetHistory(resText);
                 textArea.setText(resText);
+                setDataUnsaved(false);
             }
         }
     }
