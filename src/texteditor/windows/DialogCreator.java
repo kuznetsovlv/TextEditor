@@ -1,4 +1,4 @@
-package texteditor;
+package texteditor.windows;
 
 import java.io.IOException;
 import javafx.fxml.FXMLLoader;
@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class DialogCreator {
+class DialogCreator {
     public DialogCreator(DialogReaction reaction, String text) throws IOException {
         this(reaction, text, "");
     }

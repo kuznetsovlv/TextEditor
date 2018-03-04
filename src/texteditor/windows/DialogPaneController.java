@@ -1,4 +1,4 @@
-package texteditor;
+package texteditor.windows;
 
 import java.net.URL;
 import java.util.ResourceBundle;

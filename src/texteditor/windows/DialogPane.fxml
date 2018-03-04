@@ -12,7 +12,7 @@
     id="dialogPane"
     prefHeight="200.0" prefWidth="300.0"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="texteditor.DialogPaneController"
+    fx:controller="texteditor.windows.DialogPaneController"
 >
     <center>
         <FlowPane prefHeight="150.0" prefWidth="300.0">

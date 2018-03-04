@@ -2,10 +2,17 @@ package texteditor.windows;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -75,6 +82,16 @@ public class DialogManager {
         FileChooser fileChooser = createFileChooser(file, "Select file");
         
         return fileChooser.showOpenDialog(stage);
+    }
+    
+    public void openUnsavedDataDialog(DialogReaction reaction) {
+        try {
+            new DialogCreator(reaction,
+                    "You have unsaved data which will be lost after next operation. Would you like to save it before continuos?"
+                    , "Unsaved data");
+        } catch (IOException ex) {
+            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void setDefaultTitle(String defaultTitle) {

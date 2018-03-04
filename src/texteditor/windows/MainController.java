@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -21,12 +19,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import texteditor.DialogCreator;
-import texteditor.DialogReaction;
 import texteditor.History;
 import texteditor.HistoryManager;
 import texteditor.fileoperations.SyncFileManager;
-import texteditor.fileoperations.ThreadTextFileReader;
 import texteditor.monitor.Monitor;
 
 public class MainController implements Initializable, Monitor {
@@ -135,25 +130,32 @@ public class MainController implements Initializable, Monitor {
         textArea.setOnKeyPressed((KeyEvent event) -> {
             if (event.isControlDown()) {
                 KeyCode key = event.getCode();
-                if(key.equals(KeyCode.Z)) {
-                    event.consume();
-                    historyManager.undo();
-                } else if(key.equals(KeyCode.Y)) {
-                    event.consume();
-                    historyManager.redo();
-                } else if(key.equals(KeyCode.S)) {
-                    event.consume();
-                    if(event.isShiftDown()) {
-                        selectOutput();
-                    } else {
-                        saveFile();
-                    }
-                } else if(key.equals(KeyCode.N)) {
-                    event.consume();
-                    createFile();
-                } else if(key.equals(KeyCode.O)) {
-                    event.consume();
-                    openOtherFile();
+                switch (key) {
+                    case Z:
+                        event.consume();
+                        historyManager.undo();
+                        break;
+                    case Y:
+                        event.consume();
+                        historyManager.redo();
+                        break;
+                    case S:
+                        event.consume();
+                        if(event.isShiftDown()) {
+                            selectOutput();
+                        } else {
+                            saveFile();
+                        }   break;
+                    case N:
+                        event.consume();
+                        createFile();
+                        break;
+                    case O:
+                        event.consume();
+                        openOtherFile();
+                        break;
+                    default:
+                        break;
                 }
             }
         });
@@ -232,7 +234,7 @@ public class MainController implements Initializable, Monitor {
     /*controls*/
     public void exit() {
         if (dataUnsaved) {
-            askForSaveFile(new DialogReaction() {
+            DialogManager.instance().openUnsavedDataDialog(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
                     if (selectOutput() != null) {
@@ -244,17 +246,13 @@ public class MainController implements Initializable, Monitor {
                 public void noReaction(ActionEvent event) {
                     System.exit(0);
                 }
-            }, "You have unsaved data. Would you like to save it before exit?");
+            });
         } else {
             System.exit(0);
         }
     }
     
-    /*PRIVATE METHODS*/
-    private void askForSaveFile(DialogReaction reaction, String question) {
-        openDialog(reaction, question, "Unsaved changes");
-    }
-    
+    /*PRIVATE METHODS*/    
     private void chooseFile() {
         file = DialogManager.instance().openChoseDialog(file);
         openCurrentFile();
@@ -262,7 +260,7 @@ public class MainController implements Initializable, Monitor {
     
     private void createFile() {
         if (dataUnsaved) {
-            askForSaveFile(new DialogReaction() {
+            DialogManager.instance().openUnsavedDataDialog(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
                     if(selectOutput() != null && saveFile() != null) {
@@ -274,7 +272,7 @@ public class MainController implements Initializable, Monitor {
                 public void noReaction(ActionEvent event) {
                     startCreateProcess();
                 }
-            }, "You have unsaved data. Would you like to save it before creating new file?");
+            });
         } else {
             startCreateProcess();
         }
@@ -306,17 +304,9 @@ public class MainController implements Initializable, Monitor {
         }
     }
     
-    private void openDialog(DialogReaction reaction, String question, String title) {
-        try {
-            new DialogCreator(reaction, question, title);
-        } catch (IOException ex) {
-            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
     private void openOtherFile() {
         if (dataUnsaved) {
-            askForSaveFile(new DialogReaction() {
+            DialogManager.instance().openUnsavedDataDialog(new DialogReaction() {
                 @Override
                 public void yesReaction(ActionEvent event) {
                     if(selectOutput() != null) {
@@ -330,7 +320,7 @@ public class MainController implements Initializable, Monitor {
                 public void noReaction(ActionEvent event) {
                     chooseFile();
                 }
-            }, "You have unsaved data. Would you like to save it before open new file?");
+            });
         } else {
             chooseFile();
         }

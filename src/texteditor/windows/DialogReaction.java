@@ -1,4 +1,4 @@
-package texteditor;
+package texteditor.windows;
 
 import javafx.event.ActionEvent;
 
