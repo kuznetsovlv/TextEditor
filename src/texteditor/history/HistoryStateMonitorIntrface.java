@@ -1,7 +1,5 @@
 package texteditor.history;
 
-import javafx.scene.control.IndexRange;
-
 public interface HistoryStateMonitorIntrface {
     
     public String getCurrentText();

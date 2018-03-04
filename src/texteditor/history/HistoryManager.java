@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.control.IndexRange;
 import javax.swing.Timer;
 
 enum Action { NONE, UNDO, REDO, ADD, RESET };

@@ -1,9 +1,6 @@
 
 package texteditor.history;
 
-import javafx.scene.control.IndexRange;
-
-
 class Item {
     private final String text;
     private final int anchor;

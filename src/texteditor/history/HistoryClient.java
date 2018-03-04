@@ -1,6 +1,5 @@
 package texteditor.history;
 
-import javafx.scene.control.IndexRange;
 import texteditor.monitor.Monitor;
 
 public interface HistoryClient extends Monitor {

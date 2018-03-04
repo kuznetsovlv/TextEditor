@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import texteditor.monitor.Monitor;
 
-public class ThreadTextFileReader implements Runnable {
+class ThreadTextFileReader implements Runnable {
     
     private final File file;
     private final Monitor controler;

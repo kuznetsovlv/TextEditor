@@ -1,6 +1,5 @@
 package texteditor.fileoperations;
 
-
-public class FileOperationData {
+class FileOperationData {
     public static final String DEFAULT_ENCODING = "UTF-8";
 }
