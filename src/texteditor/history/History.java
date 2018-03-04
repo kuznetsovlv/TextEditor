@@ -2,7 +2,6 @@ package texteditor.history;
 
 import java.util.LinkedList;
 import java.util.List;
-import javafx.scene.control.IndexRange;
 
 class History implements HistoryStateMonitorIntrface {    
     private List<Item> historyList;
@@ -22,8 +21,8 @@ class History implements HistoryStateMonitorIntrface {
     }
     
     @Override
-    public IndexRange getCurrentSelection() {
-        return historyList.get(index).getSelection();
+    public int getCurrentAnchor() {
+        return historyList.get(index).getAnchor();
     }
     
     @Override
@@ -46,6 +45,10 @@ class History implements HistoryStateMonitorIntrface {
     }
     
     public void add(Item historyItem) {
+        if (historyItem.getText().equals(getCurrentText())) {
+            return;
+        }
+        
         cut();
         historyList.add(historyItem);
         ++index;
@@ -73,7 +76,7 @@ class History implements HistoryStateMonitorIntrface {
     
     public void reset(String initialHistory) {
         historyList = new LinkedList<>();
-        historyList.add(new Item(initialHistory, new IndexRange(0, 0)));
+        historyList.add(new Item(initialHistory, 0));
         index = 0;
     }
     

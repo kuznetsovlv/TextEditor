@@ -35,8 +35,9 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
         inWork = false;
         
         timer = new Timer(SAVE_DELAY, (ActionEvent e) -> {
-            history.add(lastHistoryItem);
             timer.stop();
+            history.add(lastHistoryItem);
+            controller.notifyUpdatedHistory();
         });
         
         thread.setDaemon(true);
@@ -59,8 +60,8 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
         actions.add(Action.REDO);
     }
     
-    public void add(String newHistoryValue, IndexRange selection) {
-        lastHistoryItem = new Item(newHistoryValue, selection);
+    public void add(String newHistoryValue, int anchor) {
+        lastHistoryItem = new Item(newHistoryValue, anchor);
         
         actions.add(Action.ADD);
     }
@@ -126,8 +127,8 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     }
 
     @Override
-    public IndexRange getCurrentSelection() {
-        return history.getCurrentSelection();
+    public int getCurrentAnchor() {
+        return history.getCurrentAnchor();
     }
 
     @Override
@@ -164,6 +165,6 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     }
     
     private void setController() {
-        controller.setState(history.getCurrentText(), history.getCurrentSelection());
+        controller.setState(history.getCurrentText(), history.getCurrentAnchor());
     }
 }

@@ -8,8 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.IndexRange;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
@@ -18,7 +16,6 @@ import javafx.scene.layout.Pane;
 import texteditor.history.HistoryManager;
 import texteditor.fileoperations.SyncFileManager;
 import texteditor.history.HistoryClient;
-import texteditor.monitor.Monitor;
 
 public class MainController implements Initializable, HistoryClient {
     
@@ -105,8 +102,13 @@ public class MainController implements Initializable, HistoryClient {
     @FXML
     public void textChange(Event event) {
         setDataUnsaved(true);
-        historyManager.add(textArea.getText(), textArea.getSelection());
-        enableHistoryItems();
+        
+        int position = textArea.getAnchor() + textArea.getText().length() - historyManager.getCurrentText().length();
+        if (position < textArea.getAnchor()) {
+            position = textArea.getAnchor();
+        }
+
+        historyManager.add(textArea.getText(), position);
     }
     
     /*INITIALIZER*/
@@ -173,25 +175,17 @@ public class MainController implements Initializable, HistoryClient {
     
     /*getters and setters*/    
     @Override
-    public void setState(String text, IndexRange selection) {
+    public void setState(String text, int anchor) {
         textArea.setText(text);
         
-        if (selection == null) {
-            textArea.selectRange(text.length(), text.length());
-        } else {
-            textArea.selectRange(selection.getStart(), selection.getEnd());
-        } 
+        textArea.selectRange(anchor, anchor);
         
         enableHistoryItems();
     }
     
-    private void setDataUnsaved(boolean dataUnsaved) {
-        this.dataUnsaved = dataUnsaved;
-    }
-    
-    private void enableHistoryItems() {
-        undoMenuItem.setDisable(historyManager.getCurrentIndex() <= 0);
-        redoMenuItem.setDisable(historyManager.getCurrentIndex() >= historyManager.size() - 1);
+    @Override
+    public void notifyUpdatedHistory() {
+        enableHistoryItems();
     }
     
     /*controls*/
@@ -319,5 +313,14 @@ public class MainController implements Initializable, HistoryClient {
     
     private void updateTitle() {
         DialogManager.instance().setMainTitle(file != null ? file.getAbsolutePath() : null);
+    }
+    
+    private void setDataUnsaved(boolean dataUnsaved) {
+        this.dataUnsaved = dataUnsaved;
+    }
+    
+    private void enableHistoryItems() {
+        undoMenuItem.setDisable(historyManager.getCurrentIndex() <= 0);
+        redoMenuItem.setDisable(historyManager.getCurrentIndex() >= historyManager.size() - 1);
     }
 }

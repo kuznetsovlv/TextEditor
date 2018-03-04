@@ -6,7 +6,7 @@ public interface HistoryStateMonitorIntrface {
     
     public String getCurrentText();
     
-    public IndexRange getCurrentSelection();
+    public int getCurrentAnchor();
     
     public int getCurrentIndex();
     

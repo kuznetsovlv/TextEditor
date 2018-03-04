@@ -5,19 +5,19 @@ import javafx.scene.control.IndexRange;
 
 
 class Item {
-    String text;
-    IndexRange selection;
+    private final String text;
+    private final int anchor;
 
-    public Item(String text, IndexRange selection) {
+    public Item(String text, int anchor) {
         this.text = text;
-        this.selection = selection;
+        this.anchor = anchor;
     }
 
     public String getText() {
         return text;
     }
 
-    public IndexRange getSelection() {
-        return selection;
+    public int getAnchor() {
+        return anchor;
     }
 }
