@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import texteditor.Callback;
 import texteditor.monitor.Monitor;
 
 public class ThreadTextFileReader implements Runnable {
