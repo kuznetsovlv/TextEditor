@@ -8,18 +8,19 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import texteditor.History;
-import texteditor.HistoryManager;
+import texteditor.history.HistoryManager;
 import texteditor.fileoperations.SyncFileManager;
+import texteditor.history.HistoryClient;
 import texteditor.monitor.Monitor;
 
-public class MainController implements Initializable, Monitor {
+public class MainController implements Initializable, HistoryClient {
     
     @FXML
     private Pane borderPane;
@@ -51,7 +52,6 @@ public class MainController implements Initializable, Monitor {
     @FXML
     private TextArea textArea;
     
-    private History history;
     private HistoryManager historyManager;
     private Runnable occupiedBy;
     
@@ -104,14 +104,15 @@ public class MainController implements Initializable, Monitor {
     
     @FXML
     public void textChange(Event event) {
-        dataUnsaved = true;
-        historyManager.add();
+        setDataUnsaved(true);
+        historyManager.add(textArea.getText(), textArea.getSelection());
+        enableHistoryItems();
     }
     
     /*INITIALIZER*/
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        dataUnsaved = false;
+        setDataUnsaved(false);
         
         textArea.setOnKeyPressed((KeyEvent event) -> {
             if (event.isControlDown()) {
@@ -146,7 +147,6 @@ public class MainController implements Initializable, Monitor {
             }
         });
         
-        history = new History();
         historyManager = new HistoryManager(this);
         historyManager.start();
         openCurrentFile();
@@ -155,31 +155,6 @@ public class MainController implements Initializable, Monitor {
     }
     
     /*PUBLIC CONTROL METHODS*/
-    
-    /*history control*/
-    public void addHistory() {
-        if (!textArea.getText().equals(history.getCurrent())) {
-            history.add(textArea.getText(), textArea.getSelection());
-            enableHistoryItems();
-        }
-    }
-    
-    public void redoText() {
-        history.redo();
-        setText();
-    }
-    
-    public void resetHistory(String initial) {
-        history.reset(initial);
-        setText();
-        dataUnsaved = false;
-    }
-    
-    public void undoText() {
-        history.undo();
-        setText();
-    }
-    
     /*access control methods*/
     @Override
     public boolean isAvailableFor(Runnable r) {
@@ -196,25 +171,27 @@ public class MainController implements Initializable, Monitor {
         occupiedBy = null;
     }
     
-    /*getters and setters*/
-    public String getText() {
-        return textArea.getText();
+    /*getters and setters*/    
+    @Override
+    public void setState(String text, IndexRange selection) {
+        textArea.setText(text);
+        
+        if (selection == null) {
+            textArea.selectRange(text.length(), text.length());
+        } else {
+            textArea.selectRange(selection.getStart(), selection.getEnd());
+        } 
+        
+        enableHistoryItems();
     }
     
-    public void setDataUnsaved(boolean dataUnsaved) {
+    private void setDataUnsaved(boolean dataUnsaved) {
         this.dataUnsaved = dataUnsaved;
     }
     
     private void enableHistoryItems() {
-        undoMenuItem.setDisable(history.getCurrentIndex() <= 0);
-        redoMenuItem.setDisable(history.getCurrentIndex() >= history.size() - 1);
-    }
-    
-    private void setText() {
-        IndexRange selection = history.getCurrentSelection();
-        textArea.setText(history.getCurrent());
-        textArea.selectRange(selection.getStart(), selection.getEnd());
-        enableHistoryItems();
+        undoMenuItem.setDisable(historyManager.getCurrentIndex() <= 0);
+        redoMenuItem.setDisable(historyManager.getCurrentIndex() >= historyManager.size() - 1);
     }
     
     /*controls*/
@@ -335,7 +312,7 @@ public class MainController implements Initializable, Monitor {
     }
     
     private void startCreateProcess() {
-        resetHistory("");
+        historyManager.resetHistory("");
         file = null;
         updateTitle();
     }

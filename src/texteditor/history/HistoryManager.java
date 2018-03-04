@@ -1,34 +1,41 @@
-package texteditor;
+package texteditor.history;
 
 import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.control.IndexRange;
 import javax.swing.Timer;
-import texteditor.windows.MainController;
 
 enum Action { NONE, UNDO, REDO, ADD, RESET };
 
-public class HistoryManager implements Runnable {
+public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     
     static private final int SAVE_DELAY = 20;
     
-    private final MainController controller;
-    private final Thread thread;   
+    private final HistoryClient controller;
+    private final Thread thread;
+    private final History history;
+    
     private List<Action> actions;
     private boolean inWork;
     private Timer timer;
-    private String resetHistoriValue;
     
+    private String newHistoryValue;
+    private Item lastHistoryItem;
 
-    public HistoryManager(MainController controller) {
+    public HistoryManager(HistoryClient controller) {
         this.controller = controller;
         thread = new Thread(this);
+        history = new History();
+        
         updateActions();
+        
         inWork = false;
+        
         timer = new Timer(SAVE_DELAY, (ActionEvent e) -> {
-            controller.addHistory();
+            history.add(lastHistoryItem);
             timer.stop();
         });
         
@@ -52,33 +59,16 @@ public class HistoryManager implements Runnable {
         actions.add(Action.REDO);
     }
     
-    public void add() {
+    public void add(String newHistoryValue, IndexRange selection) {
+        lastHistoryItem = new Item(newHistoryValue, selection);
+        
         actions.add(Action.ADD);
     }
     
-    public void resetHistory(String resetHistoriValue) {
-        this.resetHistoriValue = resetHistoriValue;
-        updateActions();
+    public void resetHistory(String newHistoryValue) {
+        this.newHistoryValue = newHistoryValue;
+        updateActions();   
         actions.add(Action.RESET);
-    }
-    
-    private void updateActions() {
-        actions = new LinkedList<>();
-    }
-     
-    private void addHistory() {
-        if (timer.isRunning()) {
-            timer.restart();
-        } else {
-            timer.start();
-        }
-    }
-    
-    
-    private void stopTimer() {
-        if(timer.isRunning()) {
-            timer.stop();
-        }
     }
 
     @Override
@@ -97,21 +87,24 @@ public class HistoryManager implements Runnable {
                     }
                 }
                 
+                controller.setOccupied(this);
+                
                 if (actions.size() > 0) {
-                    controller.setOccupied(this);
-                    
                     switch (actions.get(0)) {
                         case REDO:
                             stopTimer();
-                            controller.redoText();
+                            history.redo();
+                            setController();
                             break;
                         case UNDO:
                             stopTimer();
-                            controller.undoText();
+                            history.undo();
+                            setController();
                             break;
                         case RESET:
                             stopTimer();
-                            controller.resetHistory(resetHistoriValue);
+                            history.reset(newHistoryValue);
+                            setController();
                         case ADD:
                             addHistory();
                             break;
@@ -125,5 +118,51 @@ public class HistoryManager implements Runnable {
             }
         }     
     }
+
+    @Override
+    public String getCurrentText() {
+        return history.getCurrentText();
+    }
+
+    @Override
+    public IndexRange getCurrentSelection() {
+        return history.getCurrentSelection();
+    }
+
+    @Override
+    public int getCurrentIndex() {
+        return history.getCurrentIndex();
+    }
+
+    @Override
+    public String get(int index) {
+        return history.get(index);
+    }
+
+    @Override
+    public int size() {
+        return history.size();
+    }
     
+    private void updateActions() {
+        actions = new LinkedList<>();
+    }
+     
+    private void addHistory() {
+        if (timer.isRunning()) {
+            timer.restart();
+        } else {
+            timer.start();
+        }
+    }
+    
+    private void stopTimer() {
+        if(timer.isRunning()) {
+            timer.stop();
+        }
+    }
+    
+    private void setController() {
+        controller.setState(history.getCurrentText(), history.getCurrentSelection());
+    }
 }
