@@ -1,11 +1,9 @@
 package texteditor.history;
 
-import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Timer;
 
 enum Action { NONE, UNDO, REDO, ADD, RESET };
 
@@ -19,7 +17,6 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     
     private List<Action> actions;
     private boolean inWork;
-    private Timer timer;
     
     private String newHistoryValue;
     private Item lastHistoryItem;
@@ -32,12 +29,6 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
         updateActions();
         
         inWork = false;
-        
-        timer = new Timer(SAVE_DELAY, (ActionEvent e) -> {
-            timer.stop();
-            history.add(lastHistoryItem);
-            controller.notifyUpdatedHistory();
-        });
         
         thread.setDaemon(true);
     }
@@ -61,7 +52,7 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     
     public void add(String newHistoryValue, int anchor) {
         lastHistoryItem = new Item(newHistoryValue, anchor);
-        
+        updateActions();
         actions.add(Action.ADD);
     }
     
@@ -92,22 +83,20 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
                 if (actions.size() > 0) {
                     switch (actions.get(0)) {
                         case REDO:
-                            stopTimer();
                             history.redo();
                             setController();
                             break;
                         case UNDO:
-                            stopTimer();
                             history.undo();
                             setController();
                             break;
                         case RESET:
-                            stopTimer();
                             history.reset(newHistoryValue);
                             controller.notifyUpdatedHistory();
                             break;
                         case ADD:
-                            addHistory();
+                            history.add(lastHistoryItem);
+                            controller.notifyUpdatedHistory();
                             break;
                     }
                     
@@ -148,22 +137,13 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     private void updateActions() {
         actions = new LinkedList<>();
     }
-     
-    private void addHistory() {
-        if (timer.isRunning()) {
-            timer.restart();
-        } else {
-            timer.start();
-        }
-    }
-    
-    private void stopTimer() {
-        if(timer.isRunning()) {
-            timer.stop();
-        }
-    }
     
     private void setController() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(HistoryManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         controller.setState(history.getCurrentText(), history.getCurrentAnchor());
     }
 }
