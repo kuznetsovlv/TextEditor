@@ -10,6 +10,7 @@ enum Action { NONE, UNDO, REDO, ADD, RESET };
 public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     
     static private final int SAVE_DELAY = 20;
+    static private final int PAUSE = 10;
     
     private final HistoryClient controller;
     private final Thread thread;
@@ -106,6 +107,12 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
                 controller.setFree();
                 controller.notifyAll();
             }
+            
+            try {
+                Thread.sleep(PAUSE);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(HistoryManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }     
     }
 
@@ -139,11 +146,6 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     }
     
     private void setController() {
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(HistoryManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
         controller.setState(history.getCurrentText(), history.getCurrentAnchor());
     }
 }
