@@ -17,7 +17,7 @@ class HistoryDivState {
             increment = text;
         } else {
             this.prev = prev;
-            increment = text.length() > 0 ? text.substring(position + 1, text.length() - rest) : "";
+            increment = text.length() > 0 ? rest > 0 ? text.substring(position + 1, text.length() - rest) : text.substring(position + 1) : "";
         }
     }
 
@@ -40,10 +40,10 @@ class HistoryDivState {
             return -1;
         }
 
-        int i;
+        int i, j;
 
-        for(i = 0; i < Math.min(prevStr.length(), text.length()); ++i) {
-            if(prevStr.charAt(i) != text.charAt(i)) {
+        for(i = -1, j = 0; j < Math.min(prevStr.length(), text.length()); ++i, ++j) {
+            if(prevStr.charAt(j) != text.charAt(j)) {
                 return i;
             }
         }
@@ -56,12 +56,11 @@ class HistoryDivState {
             return 0;
         }
 
-        int i;
+        int i, j;
 
-        for (i = 0; i < Math.min(prevStr.length(), text.length()); ++i) {
-            int j = i + 1;
+        for (i = 0, j = 1; j < Math.min(prevStr.length(), text.length()); ++i, ++j) {
             if(prevStr.charAt(prevStr.length() - j) != text.charAt(text.length() - j)) {
-                return j;
+                return i;
             }
         }
 
