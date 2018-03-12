@@ -102,13 +102,8 @@ public class MainController implements Initializable, HistoryClient {
     @FXML
     public void textChange(Event event) {
         setDataUnsaved(true);
-        
-        int position = textArea.getAnchor() + textArea.getText().length() - historyManager.getCurrentText().length();
-        if (position < textArea.getAnchor()) {
-            position = textArea.getAnchor();
-        }
 
-        historyManager.add(textArea.getText(), position);
+        historyManager.add(textArea.getText());
     }
     
     /*INITIALIZER*/

@@ -19,8 +19,8 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
     private List<Action> actions;
     private boolean inWork;
     
-    private String newHistoryValue;
-    private Item lastHistoryItem;
+    private String resetHistoryValue;
+    private String addHistoryItem;
 
     public HistoryManager(HistoryClient controller) {
         this.controller = controller;
@@ -51,14 +51,14 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
         actions.add(Action.REDO);
     }
     
-    public void add(String newHistoryValue, int anchor) {
-        lastHistoryItem = new Item(newHistoryValue, anchor);
+    public void add(String addHistoryItem) {
+        this.addHistoryItem = addHistoryItem;
         updateActions();
         actions.add(Action.ADD);
     }
     
-    public void resetHistory(String newHistoryValue) {
-        this.newHistoryValue = newHistoryValue;
+    public void resetHistory(String resetHistoryValue) {
+        this.resetHistoryValue = resetHistoryValue;
         updateActions();   
         actions.add(Action.RESET);
     }
@@ -92,11 +92,11 @@ public class HistoryManager implements Runnable, HistoryStateMonitorIntrface {
                             setController();
                             break;
                         case RESET:
-                            history.reset(newHistoryValue);
+                            history.reset(resetHistoryValue);
                             controller.notifyUpdatedHistory();
                             break;
                         case ADD:
-                            history.add(lastHistoryItem);
+                            history.add(addHistoryItem);
                             controller.notifyUpdatedHistory();
                             break;
                     }

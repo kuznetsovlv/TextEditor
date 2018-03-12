@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 class History implements HistoryStateMonitorIntrface {    
-    private List<Item> historyList;
+    private List<HistoryDivState> historyList;
     private int index;
 
     public History(String initialHistory) {
@@ -17,12 +17,12 @@ class History implements HistoryStateMonitorIntrface {
     
     @Override
     public String getCurrentText() {
-        return historyList.get(index).getText();
+        return historyList.get(index).toString();
     }
     
     @Override
     public int getCurrentAnchor() {
-        return historyList.get(index).getAnchor();
+        return historyList.get(index).getCursorPosition();
     }
     
     @Override
@@ -36,7 +36,7 @@ class History implements HistoryStateMonitorIntrface {
             return null;
         }
         
-        return historyList.get(position).getText();
+        return historyList.get(position).toString();
     }
     
     @Override
@@ -44,13 +44,13 @@ class History implements HistoryStateMonitorIntrface {
         return historyList.size();
     }
     
-    public void add(Item historyItem) {
-        if (historyItem.getText().equals(getCurrentText())) {
+    public void add(String text) {
+        if (text == null || text.equals(historyList.get(index).toString())) {
             return;
         }
         
         cut();
-        historyList.add(historyItem);
+        historyList.add(new HistoryDivState(text, historyList.get(index)));
         ++index;
     }
     
@@ -76,7 +76,7 @@ class History implements HistoryStateMonitorIntrface {
     
     public void reset(String initialHistory) {
         historyList = new LinkedList<>();
-        historyList.add(new Item(initialHistory, 0));
+        historyList.add(new HistoryDivState(initialHistory, null));
         index = 0;
     }
     
@@ -90,7 +90,7 @@ class History implements HistoryStateMonitorIntrface {
     
     private void cut() {
         if (index < historyList.size() - 1) {
-            List<Item> oldHistoryList = historyList;
+            List<HistoryDivState> oldHistoryList = historyList;
             historyList = new LinkedList<>();
             
             for (int i = 0; i <= index; ++i) {
