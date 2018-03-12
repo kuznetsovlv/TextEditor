@@ -22,7 +22,7 @@ class HistoryDivState {
     }
 
     public int getCursorPosition() {
-        return this.toString().length() - rest + 1;
+        return this.toString().length() - rest;
     }
 
     @Override
