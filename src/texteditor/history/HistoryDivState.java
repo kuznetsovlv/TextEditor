@@ -17,7 +17,15 @@ class HistoryDivState {
             increment = text;
         } else {
             this.prev = prev;
-            increment = text.length() > 0 ? rest > 0 ? text.substring(position + 1, text.length() - rest) : text.substring(position + 1) : "";
+            increment = text.length() > 0
+                    ?
+                    rest > 0
+                        ?
+                    text.substring(position, text.length() - rest)
+                        :
+                    text.substring(position)
+                    :
+                    "";
         }
     }
 
@@ -32,18 +40,18 @@ class HistoryDivState {
         }
 
         String prevStr = prev.toString();
-        return prevStr.substring(0, position + 1) + increment + (rest > 0 ? prevStr.substring(prevStr.length() - rest) : "");
+        return prevStr.substring(0, position) + increment + (rest > 0 ? prevStr.substring(prevStr.length() - rest) : "");
     }
     
     private int getBegin(String text, String prevStr) {
         if (prevStr.length() == 0) {
-            return -1;
+            return 0;
         }
 
-        int i, j;
+        int i;
 
-        for(i = -1, j = 0; j < Math.min(prevStr.length(), text.length()); ++i, ++j) {
-            if(prevStr.charAt(j) != text.charAt(j)) {
+        for(i = 0; i < Math.min(prevStr.length(), text.length()); ++i) {
+            if(prevStr.charAt(i) != text.charAt(i)) {
                 return i;
             }
         }
